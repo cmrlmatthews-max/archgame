@@ -101,7 +101,7 @@ cursor:pointer; letter-spacing:2px; box-shadow:4px 4px 0 #7a4a00;
 </div>
 
 <div id="hud">
-  <span id="hud-hp">❤❤❤</span>
+  <span id="hud-hp" style="display:none;">❤❤❤</span>
   <span>DYSFUNCTIONAL FAMILY</span>
   <span id="hud-coins">COINS: 0</span>
 </div>
@@ -180,7 +180,7 @@ window.addEventListener('resize', resizeCanvas);
 // ═══════════════════════════════════════════════════
 //  LEVEL DESIGN
 // ═══════════════════════════════════════════════════
-const LEVEL_W = 2800;
+const LEVEL_W = 3600;
 const GROUND_Y = VH - 32;
 
 const PLATFORMS = [
@@ -217,6 +217,17 @@ const PLATFORMS = [
   [2360, GROUND_Y-70,  90, 14, '#7a5a2a'],
   [2520, GROUND_Y-110, 80, 14, '#7a5a2a'],
   [2660, GROUND_Y-80,  80, 14, '#7a5a2a'],
+
+  // Boss arena - large platform for Charla the dragon fight
+  [2900, GROUND_Y, 600, 32, '#4a7a2a'],
+  // Floating platforms in boss arena - tiered so player can hop up
+  // Tier 1: reachable from ground (~60-70px up, max jump ~93px)
+  [2940, GROUND_Y-60, 90, 14, '#7a5a2a'],
+  [3150, GROUND_Y-55, 90, 14, '#7a5a2a'],
+  [3350, GROUND_Y-65, 80, 14, '#7a5a2a'],
+  // Tier 2: reachable from tier 1 platforms (~120px up from ground)
+  [3040, GROUND_Y-110, 90, 14, '#7a5a2a'],
+  [3250, GROUND_Y-115, 80, 14, '#7a5a2a'],
 ];
 
 function buildCoins() {
@@ -237,7 +248,7 @@ function buildCoins() {
   return coins;
 }
 
-const FLAG = { x: LEVEL_W - 60, y: GROUND_Y - 120 };
+const FLAG = { x: LEVEL_W - 80, y: GROUND_Y - 180 };
 
 const PALM_TREES = [
   { x:200,  type:'shield' },
@@ -378,6 +389,41 @@ function sfxWin() {
   });
 }
 
+function sfxBossRoar() {
+  const ctx = ensureAudio();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const filter = ctx.createBiquadFilter();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(60, ctx.currentTime);
+  osc.frequency.linearRampToValueAtTime(90, ctx.currentTime + 0.4);
+  filter.type = 'highpass';
+  filter.frequency.setValueAtTime(80, ctx.currentTime);
+  gain.gain.setValueAtTime(0.2, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+  osc.connect(filter).connect(gain).connect(ctx.destination);
+  osc.start(); osc.stop(ctx.currentTime + 0.5);
+}
+
+function sfxBossHit() {
+  const ctx = ensureAudio();
+  const osc1 = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(150, ctx.currentTime);
+  osc1.frequency.linearRampToValueAtTime(80, ctx.currentTime + 0.15);
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(250, ctx.currentTime);
+  osc2.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.15);
+  gain.gain.setValueAtTime(0.12, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+  osc1.connect(gain).connect(ctx.destination);
+  osc2.connect(gain).connect(ctx.destination);
+  osc1.start(); osc1.stop(ctx.currentTime + 0.2);
+  osc2.start(); osc2.stop(ctx.currentTime + 0.2);
+}
+
 function bgMusic() {
   const ctx = ensureAudio();
   if (musicNodes) return;
@@ -440,6 +486,8 @@ let playerSquash = { sx:1, sy:1, targetSx:1, targetSy:1 };
 let paused = false;
 let celebrationParticles = [];
 let flagReached = false;
+let boss = null;
+let bossDefeated = false;
 
 function initState(){
   player = {
@@ -514,6 +562,27 @@ function initState(){
       bright:Math.random()<0.15
     });
   }
+
+  // Boss state initialization
+  boss = {
+    x: 3150,
+    y: GROUND_Y - 75,
+    w: 80,
+    h: 60,
+    hp: 5,
+    maxHp: 5,
+    active: false,
+    invTimer: 0,
+    phase: 'idle',
+    moveTimer: 0,
+    attackTimer: 0,
+    vx: 0,
+    vy: 0,
+    targetY: GROUND_Y - 100,
+    roarPlayed: false,
+    defeated: false,
+  };
+  bossDefeated = false;
 
   document.getElementById('hud-coins').textContent='COINS: 0';
   document.getElementById('hud-hp').textContent='❤'.repeat(player.hp)+('').padEnd(player.maxHp-player.hp,'◇');
@@ -637,15 +706,16 @@ function update(dt, now){
       document.getElementById('hud-coins').textContent = 'COINS: ' + coinsCollected;
       spawnSparkles(c.x, c.y, 8, '#ffdd00');
       sfxCoin();
-      if (coinsCollected >= totalCoins) {
-        sfxWin();
-        setTimeout(()=>{ document.getElementById('win').style.display='flex'; }, 1000);
-      }
+      // Coins now only contribute to score - boss defeat wins the game
+      // if (coinsCollected >= totalCoins) {
+      //   sfxWin();
+      //   setTimeout(()=>{ document.getElementById('win').style.display='flex'; }, 1000);
+      // }
     }
   });
 
-  // Flag celebration
-  if (!flagReached && coinsCollected >= totalCoins && Math.abs(player.x + player.w/2 - FLAG.x) < 40 && Math.abs(player.y + player.h/2 - FLAG.y) < 40) {
+  // Flag celebration - triggered after boss defeat
+  if (!flagReached && bossDefeated && Math.abs(player.x + player.w/2 - FLAG.x) < 60 && Math.abs(player.y + player.h/2 - FLAG.y) < 60) {
     flagReached = true;
     sfxWin();
     for (let i = 0; i < 32; i++) {
@@ -659,6 +729,7 @@ function update(dt, now){
         color: ['#ffdd00', '#ff6644', '#ff4444', '#ffaa00'][Math.floor(Math.random() * 4)],
       });
     }
+    setTimeout(()=>{ document.getElementById('win').style.display='flex'; }, 1000);
   }
 
   // Palm tree power-ups
@@ -707,6 +778,150 @@ function update(dt, now){
       }
     }
   });
+
+  // ═══════════════════════════════════════════════════
+  // BOSS AI
+  // ═══════════════════════════════════════════════════
+  if (boss && !boss.defeated) {
+    // Check if player entered boss arena (x > 2900)
+    if (!boss.active && player.x > 2900) {
+      boss.active = true;
+      showMsg('CHARLA AWAKENS!', 2000);
+      if (!boss.roarPlayed) {
+        sfxBossRoar();
+        screenShake.intensity = 8;
+        screenShake.timer = 0.5;
+        boss.roarPlayed = true;
+      }
+    }
+
+    if (boss.active && !boss.defeated) {
+      // Boss movement and attack patterns
+      boss.invTimer -= pdt;
+      boss.moveTimer -= pdt;
+      boss.attackTimer -= pdt;
+
+      // Hover movement - boss bobs up and down and moves horizontally
+      // Swoops lower so player can stomp from platforms or well-timed ground jumps
+      const baseY = GROUND_Y - 75;
+      const hoverAmount = Math.sin(now / 1000) * 45 + Math.sin(now / 600) * 15;
+      boss.targetY = baseY + hoverAmount;
+
+      // Move towards target Y
+      const yDiff = boss.targetY - boss.y;
+      boss.vy += yDiff * 0.5 * pdt;
+      boss.vy *= 0.95;
+      boss.y += boss.vy * pdt;
+
+      // Horizontal swooping movement
+      if (boss.moveTimer <= 0) {
+        boss.moveTimer = 2 + Math.random() * 2;
+        boss.vx = (Math.random() > 0.5 ? 1 : -1) * (80 + boss.maxHp - boss.hp) * 10;
+      }
+      boss.x += boss.vx * pdt;
+
+      // Keep boss in arena bounds
+      boss.x = Math.max(2920, Math.min(boss.x, 3450));
+
+      // Boss attacks (more aggressive as HP decreases)
+      const attackInterval = 3 - (boss.maxHp - boss.hp) * 0.4;
+      if (boss.attackTimer <= 0) {
+        boss.attackTimer = attackInterval;
+
+        // Fire salvo of 3-5 projectiles at player
+        const numProjectiles = 3 + Math.floor((boss.maxHp - boss.hp) * 0.5);
+        const baseDx = player.x + player.w/2 - boss.x;
+        const baseDy = player.y + player.h/2 - boss.y;
+        const baseDist = Math.hypot(baseDx, baseDy);
+
+        for (let i = 0; i < numProjectiles; i++) {
+          const spreadAngle = (i - (numProjectiles - 1) / 2) * 0.4;
+          const angle = Math.atan2(baseDy, baseDx) + spreadAngle;
+          projectiles.push({
+            x: boss.x,
+            y: boss.y,
+            vx: Math.cos(angle) * 120,
+            vy: Math.sin(angle) * 120,
+            life: 5,
+            insult: 'RAWR!',
+          });
+        }
+      }
+    }
+
+    // Boss stomp collision detection
+    if (boss.active && !boss.defeated && boss.invTimer <= 0) {
+      const bLeft = boss.x - boss.w/2;
+      const bRight = boss.x + boss.w/2;
+      const bTop = boss.y - boss.h;
+      const bBottom = boss.y;
+
+      const pLeft = player.x;
+      const pRight = player.x + player.w;
+      const pBottom = player.y + player.h;
+      const pTop = player.y;
+
+      // Check if player landed on boss
+      if (pRight > bLeft + 4 && pLeft < bRight - 4) {
+        if (player.vy > 0 && pBottom >= bTop && pBottom <= bTop + 20) {
+          // Successful stomp on boss!
+          boss.hp--;
+          sfxBossHit();
+          boss.invTimer = 0.4;
+
+          // Bounce player
+          player.vy = JUMP_VEL * 0.8;
+          player.onGround = false;
+
+          // Flash effect
+          playerSquash.sx = 1.3;
+          playerSquash.sy = 0.65;
+
+          // Particle burst
+          for (let j = 0; j < 20; j++) {
+            const angle = Math.random() * 6.28;
+            const speed = Math.random() * 150 + 60;
+            sparkles.push({
+              x: boss.x, y: bTop + boss.h/2,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed - 80,
+              life: 0.7,
+              color: ['#ff4488', '#ff6644', '#ffaa00', '#ffdd00'][Math.floor(Math.random() * 4)],
+            });
+          }
+
+          // Screen shake
+          screenShake.intensity = 5;
+          screenShake.timer = 0.2;
+
+          // Boss defeated?
+          if (boss.hp <= 0) {
+            boss.defeated = true;
+            bossDefeated = true;
+            showMsg('CHARLA DEFEATED!', 2500);
+            sfxWin();
+
+            // Big explosion
+            for (let j = 0; j < 40; j++) {
+              const angle = Math.random() * 6.28;
+              const speed = Math.random() * 200 + 100;
+              sparkles.push({
+                x: boss.x, y: boss.y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 100,
+                life: 1.2,
+                color: ['#ff2222', '#ff6644', '#ffaa00', '#ffdd00', '#ff4488'][Math.floor(Math.random() * 5)],
+              });
+            }
+
+            // Huge screen shake
+            screenShake.intensity = 12;
+            screenShake.timer = 0.4;
+          }
+        }
+      }
+    }
+  }
 
   // Stomp combo timer
   stompComboTimer -= pdt;
@@ -2237,6 +2452,131 @@ function drawPlayer(now){
   ctx.fillText(p.charName,sx+pw/2,y+b);
 }
 
+function drawBoss(now) {
+  if (!boss || boss.y < -100) return;
+
+  const sx = boss.x - camX;
+  const sy = boss.y;
+
+  if (sx < -100 || sx > VW + 100) return;
+
+  // Draw boss health bar above
+  const hpBarWidth = 60;
+  const hpBarHeight = 4;
+  const hpBarX = sx - hpBarWidth / 2;
+  const hpBarY = sy - boss.h - 15;
+
+  ctx.fillStyle = 'rgba(0,0,0,.6)';
+  ctx.fillRect(hpBarX - 1, hpBarY - 1, hpBarWidth + 2, hpBarHeight + 2);
+  ctx.fillStyle = '#ff2222';
+  ctx.fillRect(hpBarX, hpBarY, hpBarWidth * Math.max(0, boss.hp / boss.maxHp), hpBarHeight);
+  ctx.strokeStyle = '#ffff00';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(hpBarX, hpBarY, hpBarWidth, hpBarHeight);
+
+  // Draw boss name
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 8px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('CHARLA', sx, hpBarY - 2);
+
+  // Flash white when invulnerable
+  const isFlashing = boss.invTimer > 0;
+  const flashOn = Math.floor(boss.invTimer * 20) % 2 === 0;
+  ctx.globalAlpha = isFlashing && !flashOn ? 0.5 : 1;
+
+  // Draw dragon body (purple/red)
+  const bodyColor = isFlashing && flashOn ? '#ffffff' : '#663399';
+
+  // Main body (oval)
+  ctx.fillStyle = bodyColor;
+  ctx.beginPath();
+  ctx.ellipse(sx, sy - 15, 35, 25, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Head
+  ctx.beginPath();
+  ctx.ellipse(sx + 30, sy - 20, 18, 16, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Neck bulge
+  ctx.beginPath();
+  ctx.ellipse(sx + 15, sy - 18, 12, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eyes (glowing)
+  const eyeColor = isFlashing && flashOn ? '#ffff00' : '#ffcc00';
+  ctx.fillStyle = eyeColor;
+  ctx.beginPath();
+  ctx.arc(sx + 36, sy - 24, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(sx + 36, sy - 24, 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#000';
+  ctx.fill();
+
+  // Second eye
+  ctx.fillStyle = eyeColor;
+  ctx.beginPath();
+  ctx.arc(sx + 38, sy - 12, 3.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.arc(sx + 38, sy - 12, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Wings (flapping motion)
+  const wingAngle = Math.sin(now / 300) * 0.3;
+  ctx.fillStyle = '#885599';
+
+  // Left wing
+  ctx.save();
+  ctx.translate(sx - 5, sy - 10);
+  ctx.rotate(-0.5 + wingAngle);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 20, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Right wing
+  ctx.save();
+  ctx.translate(sx + 5, sy - 10);
+  ctx.rotate(0.5 - wingAngle);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 20, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Spiky tail
+  ctx.strokeStyle = bodyColor;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(sx - 35, sy);
+  const tailPoints = 4;
+  for (let i = 1; i <= tailPoints; i++) {
+    const tx = sx - 35 - i * 8;
+    const ty = sy + Math.sin(now / 400 + i) * 6 + (i % 2) * 8;
+    ctx.lineTo(tx, ty);
+  }
+  ctx.stroke();
+
+  // Tail spikes
+  ctx.fillStyle = bodyColor;
+  for (let i = 1; i <= tailPoints; i++) {
+    const tx = sx - 35 - i * 8;
+    const ty = sy + Math.sin(now / 400 + i) * 6 + (i % 2) * 8;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(tx - 4, ty - 6);
+    ctx.lineTo(tx - 2, ty);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.globalAlpha = 1;
+}
+
 function drawFlag(now){
   const fx=FLAG.x-camX, fy=FLAG.y;
   if(fx<-20||fx>VW+20) return;
@@ -2407,6 +2747,197 @@ function drawScorePopup(sp) {
   ctx.fillText(sp.text, sx, sp.y);
 
   ctx.restore();
+}
+
+function drawHealthBar(now) {
+  const startX = 6;
+  const startY = 8;
+  const heartSize = 12;
+  const heartGap = 4;
+  const totalW = player.maxHp * (heartSize + heartGap) + 8;
+
+  // Background panel
+  ctx.fillStyle = 'rgba(0,0,0,.55)';
+  ctx.fillRect(startX - 3, startY - 3, totalW, heartSize + 10);
+  ctx.strokeStyle = 'rgba(245,200,66,0.2)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(startX - 3, startY - 3, totalW, heartSize + 10);
+
+  for (let i = 0; i < player.maxHp; i++) {
+    const hx = startX + i * (heartSize + heartGap);
+    const hy = startY;
+    const isFilled = i < player.hp;
+    const isLastHeart = player.hp === 1 && i === 0;
+
+    // Low-health pulse for last heart
+    let scale = 1;
+    if (isLastHeart) {
+      scale = 1 + Math.sin(now * 0.012) * 0.15;
+    }
+
+    // Damage flash — recently lost heart
+    const justLost = !isFilled && i === player.hp && player.invTimer > 1.0;
+
+    ctx.save();
+    const cx = hx + heartSize / 2;
+    const cy = hy + heartSize / 2;
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+    ctx.translate(-cx, -cy);
+
+    if (isFilled) {
+      // Filled heart glow
+      if (isLastHeart) {
+        const glowAlpha = 0.15 + (Math.sin(now * 0.012) + 1) / 2 * 0.15;
+        ctx.fillStyle = `rgba(255,50,50,${glowAlpha})`;
+        ctx.beginPath(); ctx.arc(cx, cy, heartSize * 0.9, 0, 6.28); ctx.fill();
+      }
+
+      // Draw pixel heart shape
+      drawPixelHeart(ctx, hx, hy, heartSize, '#ff3344', '#ff6677', '#cc1122');
+    } else if (justLost) {
+      // Flashing empty heart (just lost)
+      const flash = Math.sin(now * 0.02) > 0;
+      if (flash) {
+        drawPixelHeart(ctx, hx, hy, heartSize, '#ff333388', '#ff667744', '#cc112244');
+      } else {
+        drawPixelHeart(ctx, hx, hy, heartSize, '#333', '#444', '#222');
+      }
+    } else {
+      // Empty heart
+      drawPixelHeart(ctx, hx, hy, heartSize, '#333', '#444', '#222');
+    }
+
+    ctx.restore();
+  }
+
+  // Power-up indicator next to hearts
+  if (player.powerUp) {
+    const puX = startX + player.maxHp * (heartSize + heartGap) + 6;
+    const puY = startY;
+    const puColors = { shield: '#ffdd00', speed: '#4488ff', magnet: '#cc44ff' };
+    const puNames = { shield: 'SHIELD', speed: 'SPEED', magnet: 'MAGNET' };
+    const timeLeft = Math.max(0, player.powerUpTimer);
+    const blinking = timeLeft < 2 && Math.sin(now * 0.015) > 0;
+
+    if (!blinking || timeLeft >= 2) {
+      ctx.fillStyle = 'rgba(0,0,0,.55)';
+      const label = puNames[player.powerUp] || '';
+      ctx.font = 'bold 7px monospace';
+      const tw = ctx.measureText(label).width;
+      ctx.fillRect(puX - 2, puY - 2, tw + 22, heartSize + 6);
+
+      // Icon dot
+      ctx.fillStyle = puColors[player.powerUp] || '#fff';
+      ctx.beginPath(); ctx.arc(puX + 5, puY + heartSize / 2, 4, 0, 6.28); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(puX + 5, puY + heartSize / 2 - 1, 1.5, 0, 6.28); ctx.fill();
+
+      // Label
+      ctx.fillStyle = puColors[player.powerUp] || '#fff';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, puX + 12, puY + heartSize / 2 + 1);
+
+      // Timer bar
+      const maxTime = player.powerUp === 'shield' ? 5 : player.powerUp === 'speed' ? 6 : 8;
+      const barW = tw + 18;
+      const barPct = timeLeft / maxTime;
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.fillRect(puX - 1, puY + heartSize + 1, barW, 2);
+      ctx.fillStyle = puColors[player.powerUp] || '#fff';
+      ctx.fillRect(puX - 1, puY + heartSize + 1, barW * barPct, 2);
+    }
+  }
+}
+
+function drawPixelHeart(ctx, x, y, size, mainColor, highlightColor, shadowColor) {
+  const s = size / 12; // scale factor based on 12px base
+
+  // Heart shape using pixel blocks
+  // Row 0: two bumps
+  ctx.fillStyle = mainColor;
+  ctx.fillRect(x + s*2, y, s*2, s);        // left bump top-left
+  ctx.fillRect(x + s*8, y, s*2, s);        // right bump top-left
+
+  // Row 1: wider bumps
+  ctx.fillRect(x + s*1, y + s*1, s*4, s);  // left bump
+  ctx.fillRect(x + s*7, y + s*1, s*4, s);  // right bump
+
+  // Row 2: full width top
+  ctx.fillRect(x + s*0, y + s*2, s*12, s);
+
+  // Row 3-4: full width body
+  ctx.fillRect(x + s*0, y + s*3, s*12, s);
+  ctx.fillRect(x + s*1, y + s*4, s*10, s);
+
+  // Row 5-6: narrowing
+  ctx.fillRect(x + s*2, y + s*5, s*8, s);
+  ctx.fillRect(x + s*3, y + s*6, s*6, s);
+
+  // Row 7-8: point
+  ctx.fillRect(x + s*4, y + s*7, s*4, s);
+  ctx.fillRect(x + s*5, y + s*8, s*2, s);
+
+  // Highlight (top-left of each bump)
+  ctx.fillStyle = highlightColor;
+  ctx.fillRect(x + s*2, y + s*1, s*1, s*1);
+  ctx.fillRect(x + s*8, y + s*1, s*1, s*1);
+  ctx.fillRect(x + s*1, y + s*2, s*2, s*1);
+  ctx.fillRect(x + s*7, y + s*2, s*2, s*1);
+
+  // Shadow (bottom edges)
+  ctx.fillStyle = shadowColor;
+  ctx.fillRect(x + s*5, y + s*8, s*2, s);
+  ctx.fillRect(x + s*4, y + s*7, s*1, s);
+  ctx.fillRect(x + s*9, y + s*7, s*1, s*1);
+  ctx.fillRect(x + s*3, y + s*6, s*1, s);
+  ctx.fillRect(x + s*8, y + s*6, s*1, s);
+
+  // Outline
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(x + s*2, y);
+  ctx.lineTo(x + s*4, y);
+  ctx.lineTo(x + s*4, y + s*1);
+  ctx.lineTo(x + s*5, y + s*1);
+  ctx.lineTo(x + s*5, y);
+  ctx.lineTo(x + s*7, y);
+  ctx.lineTo(x + s*7, y + s*1);
+  ctx.lineTo(x + s*8, y + s*1);
+  ctx.lineTo(x + s*8, y);
+  ctx.lineTo(x + s*10, y);
+  ctx.lineTo(x + s*10, y + s*1);
+  ctx.lineTo(x + s*11, y + s*1);
+  ctx.lineTo(x + s*11, y + s*2);
+  ctx.lineTo(x + s*12, y + s*2);
+  ctx.lineTo(x + s*12, y + s*4);
+  ctx.lineTo(x + s*11, y + s*4);
+  ctx.lineTo(x + s*11, y + s*5);
+  ctx.lineTo(x + s*10, y + s*5);
+  ctx.lineTo(x + s*10, y + s*6);
+  ctx.lineTo(x + s*9, y + s*6);
+  ctx.lineTo(x + s*9, y + s*7);
+  ctx.lineTo(x + s*7, y + s*7);
+  ctx.lineTo(x + s*7, y + s*8);
+  ctx.lineTo(x + s*5, y + s*8);
+  ctx.lineTo(x + s*5, y + s*9);
+  ctx.lineTo(x + s*5, y + s*8);
+  ctx.lineTo(x + s*5, y + s*7);
+  ctx.lineTo(x + s*3, y + s*7);
+  ctx.lineTo(x + s*3, y + s*6);
+  ctx.lineTo(x + s*2, y + s*6);
+  ctx.lineTo(x + s*2, y + s*5);
+  ctx.lineTo(x + s*1, y + s*5);
+  ctx.lineTo(x + s*1, y + s*4);
+  ctx.lineTo(x + s*0, y + s*4);
+  ctx.lineTo(x + s*0, y + s*2);
+  ctx.lineTo(x + s*1, y + s*2);
+  ctx.lineTo(x + s*1, y + s*1);
+  ctx.lineTo(x + s*2, y + s*1);
+  ctx.closePath();
+  ctx.stroke();
 }
 
 function drawStompCombo(now) {
@@ -2618,6 +3149,7 @@ function draw(now){
   drawFlag(now);
   deathAnims.forEach(da => drawDeathAnim(da, now));
   enemies.forEach(e=>drawEnemy(e,now));
+  drawBoss(now);
   projectiles.forEach(proj => drawProjectile(proj, now));
   drawPlayer(now);
   scorePopups.forEach(sp => drawScorePopup(sp));
@@ -2627,6 +3159,7 @@ function draw(now){
   ctx.restore(); // end screen shake
 
   // HUD elements drawn outside screen shake
+  drawHealthBar(now);
   drawStompCombo(now);
 
   const prog=Math.min((player.x+player.w)/LEVEL_W,1);
