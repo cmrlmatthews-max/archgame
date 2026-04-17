@@ -150,6 +150,16 @@ const OFFICE = [
   { name:'Sreeteja',  color:'#aaaa22', skin:'#f1c27d', hair:'#c4721a', cls:'estimator',    x:2280, msg:"Sreeteja: Under budget, go go!" },
 ];
 
+// Default player character: the intern architect (hard hat, glasses, clipboard)
+const INTERN = {
+  name:  'Intern',
+  color: '#f5c842',   // safety-yellow hard hat / vest accent
+  skin:  '#f1c27d',
+  hair:  '#3a2a1a',
+  cls:   'intern',
+  msg:   "Intern: I just got here!",
+};
+
 const INSULTS = [
   "Your drawings aren't to scale!", "I'm telling the PM!", "That's not ADA compliant!",
   "Your specs are incomplete!", "Who approved this submittal?", "You forgot the fire rating!",
@@ -651,6 +661,8 @@ let waterSplashes = [];
 let lavaBubbles = [];
 let heatShimmers = [];
 let healthPickups = [];
+let hitstopTimer = 0;
+let camPunch = { y: 0 };
 
 function initState(){
   player = {
@@ -685,6 +697,8 @@ function initState(){
   healthPickups = [];
   insultTexts = [];
   screenShake = { x:0, y:0, intensity:0, timer:0 };
+  hitstopTimer = 0;
+  camPunch = { y: 0 };
   stompCombo = 0;
   stompComboTimer = 0;
   deathAnims = [];
@@ -704,8 +718,8 @@ function initState(){
   checkpointsReached = new Array(CHECKPOINTS.length).fill(false);
   checkpointsReached[0] = true;
 
-  // Create enemies from non-selected office members
-  enemies = OFFICE.filter(f => f.name !== selectedChar.name).map(f => {
+  // Create enemies from ALL office members — intern faces the whole office
+  enemies = OFFICE.map(f => {
     let py = GROUND_Y;
     let patrolLeft = f.x - 40;
     let patrolRight = f.x + 40;
@@ -842,6 +856,22 @@ function triggerAbility(){
   sfxAbility();
 
   switch(cls) {
+    case 'intern':
+      // Throw a rolled-up blueprint scroll (arcing projectile)
+      playerProjectiles.push({
+        x: player.x + player.w/2 + facing * 8,
+        y: player.y + player.h/2 - 4,
+        vx: facing * 280,
+        vy: -120,
+        type: 'blueprint',
+        facing: facing,
+        rotation: 0,
+        life: 3,
+        gravity: true,
+      });
+      player.abilityTimer = 3;
+      break;
+
     case 'architect':
       // Fire arrow projectile
       playerProjectiles.push({
@@ -1036,6 +1066,11 @@ function resolvePlatforms(dt){
 function update(dt, now){
   // Skip updates if player is dead
   if (player.hp <= 0) return;
+  // Hitstop: freeze gameplay briefly on impacts for extra punch
+  if (hitstopTimer > 0) {
+    hitstopTimer -= dt;
+    return;
+  }
   // Sub-step physics for frame-rate independence
   let remaining = Math.min(dt, 0.05); // Cap at 50ms to prevent spiral of death
   while (remaining > 0) {
@@ -1088,6 +1123,10 @@ function update(dt, now){
       // Buffer the jump input for landing
       player.jumpBufferTimer = 0.12;
     }
+  }
+  // Variable jump height: release early = shorter jump
+  if (!doJump && wasJumpDown && player.vy < 0) {
+    player.vy *= 0.5;
   }
   wasJumpDown = doJump;
 
@@ -1505,6 +1544,10 @@ function update(dt, now){
           screenShake.intensity = 5;
           screenShake.timer = 0.2;
 
+          // Hitstop + camera punch on boss stomp (heavier than regular stomps)
+          hitstopTimer = Math.max(hitstopTimer, 0.1);
+          camPunch.y = Math.max(camPunch.y, 7);
+
           // Boss defeated?
           if (boss.hp <= 0) {
             boss.defeated = true;
@@ -1656,6 +1699,16 @@ function update(dt, now){
         screenShake.intensity = 3 + stompCombo;
         screenShake.timer = 0.2;
 
+        // Hitstop + camera punch scaled by combo
+        hitstopTimer = Math.max(hitstopTimer, 0.06 + Math.min(stompCombo, 4) * 0.015);
+        camPunch.y = Math.min(4 + stompCombo * 1.5, 10);
+
+        // Extra squash on combo stomps
+        if (stompCombo >= 2) {
+          playerSquash.sx = 1.5 + Math.min(stompCombo, 4) * 0.05;
+          playerSquash.sy = 0.5 - Math.min(stompCombo, 4) * 0.03;
+        }
+
         // Health pickup drop (30% chance)
         if (Math.random() < 0.3) {
           healthPickups.push({
@@ -1694,6 +1747,8 @@ function update(dt, now){
         player.vy = -180;
         screenShake.intensity = 6;
         screenShake.timer = 0.3;
+        // Hitstop on taking damage
+        hitstopTimer = Math.max(hitstopTimer, 0.09);
         playerSquash.sx = 0.6;
         playerSquash.sy = 1.4;
         spawnSparkles(player.x + player.w/2, player.y + player.h/2, 12, '#ff3333');
@@ -1747,6 +1802,10 @@ function update(dt, now){
     screenShake.x = 0;
     screenShake.y = 0;
   }
+
+  // Camera punch decay (eases back to 0 after impact)
+  camPunch.y += (0 - camPunch.y) * Math.min(dt * 14, 1);
+  if (Math.abs(camPunch.y) < 0.05) camPunch.y = 0;
 
   // Red flash update
   if (redFlash.timer > 0) {
@@ -1809,6 +1868,8 @@ function update(dt, now){
         // Red screen flash on projectile hit
         redFlash.timer = 0.35;
         redFlash.intensity = 0.4;
+        // Hitstop on projectile hit (lighter than contact damage)
+        hitstopTimer = Math.max(hitstopTimer, 0.07);
         insultTexts.push({
           text: proj.insult,
           x: player.x + player.w/2,
@@ -1858,6 +1919,12 @@ function update(dt, now){
       proj.x += proj.vx * pdt;
       proj.y += proj.vy * pdt;
       proj.rotation = (proj.rotation || 0) + (proj.vx * pdt) / 20;
+    } else if (proj.type === 'blueprint') {
+      // Arcing thrown scroll
+      proj.vy += GRAVITY * 0.6 * pdt;
+      proj.x += proj.vx * pdt;
+      proj.y += proj.vy * pdt;
+      proj.rotation = (proj.rotation || 0) + (proj.vx * pdt) / 16;
     } else if (proj.type === 'slash') {
       // Slash doesn't move, just exists briefly
     } else if (proj.type === 'afterimage') {
@@ -1917,6 +1984,11 @@ function update(dt, now){
       if (proj.type === 'arrow' || proj.type === 'shuriken') {
         const projSize = 3;
         if (proj.x > eLeft && proj.x < eRight && proj.y > eTop && proj.y < eBottom) {
+          hit = true;
+        }
+      } else if (proj.type === 'blueprint') {
+        // Scroll has slightly larger hitbox than an arrow
+        if (proj.x + 4 > eLeft && proj.x - 4 < eRight && proj.y + 4 > eTop && proj.y - 4 < eBottom) {
           hit = true;
         }
       } else if (proj.type === 'slash') {
@@ -2296,15 +2368,15 @@ function drawBG(now){
     ctx.fillRect(bx, VH * 0.6 - bh, 150, bh);
   }
 
-  // Lit windows on mid-layer buildings (small yellow rectangles)
+  // Lit windows on mid-layer buildings (small yellow rectangles) — deterministic positions to avoid flicker
   ctx.fillStyle = 'rgba(255, 240, 200, 0.8)';
   for (let i = 0; i < 12; i++) {
     const bx = ((i * 320) - camX * 0.15) % LEVEL_W;
     const bh = Math.sin(i * 0.6) * 100 + 180;
-    // Draw scattered windows on building
+    // Draw scattered windows on building — positions derived from building/window index so they don't jitter each frame
     for (let w = 0; w < 8; w++) {
-      const wx = bx + Math.random() * 140;
-      const wy = VH * 0.6 - bh + Math.random() * (bh - 20);
+      const wx = bx + ((i * 73 + w * 37) % 130) + 5;
+      const wy = VH * 0.6 - bh + ((i * 41 + w * 53) % Math.max(bh - 20, 1));
       ctx.fillRect(wx, wy, 8, 10);
     }
   }
@@ -2317,18 +2389,19 @@ function drawBG(now){
     ctx.fillRect(bx, VH * 0.6 - bh, 140, bh);
   }
 
-  // Lit windows on foreground buildings (bright yellow lights)
-  ctx.fillStyle = 'rgba(255, 250, 200, 0.9)';
+  // Lit windows on foreground buildings — deterministic lit/dark pattern so they don't flash
   for (let i = 0; i < 15; i++) {
     const bx = ((i * 250) - camX * 0.3) % LEVEL_W;
     const bh = Math.sin(i * 0.4) * 120 + 200;
-    // Grid pattern windows
+    // Grid pattern windows with stable on/off derived from building + cell index
     for (let row = 0; row < 12; row++) {
       for (let col = 0; col < 4; col++) {
         const wx = bx + col * 28 + 10;
         const wy = VH * 0.6 - bh + 20 + row * 18;
-        // Some windows are off (darker)
-        if (Math.random() > 0.6) {
+        // Stable pseudo-random from position; no per-frame jitter
+        const h = Math.sin(i * 12.9898 + row * 78.233 + col * 37.719) * 43758.5453;
+        const r = h - Math.floor(h);
+        if (r > 0.55) {
           ctx.fillStyle = 'rgba(30, 30, 50, 0.7)';
         } else {
           ctx.fillStyle = 'rgba(255, 250, 200, 0.9)';
@@ -2338,11 +2411,10 @@ function drawBG(now){
     }
   }
 
-  // Treat bgStars array as scattered window lights in the sky (extra ambient lights)
-  ctx.fillStyle = 'rgba(255, 245, 180, 0.7)';
+  // Treat bgStars array as scattered window lights in the sky — gentle slow twinkle
   bgStars.forEach(s => {
-    let flicker = (Math.sin(now * 0.002 + s.twinkle) + 1) / 2;
-    ctx.fillStyle = `rgba(255, 245, 180, ${0.5 + flicker * 0.4})`;
+    let flicker = (Math.sin(now * 0.0015 + s.twinkle) + 1) / 2;
+    ctx.fillStyle = `rgba(255, 245, 180, ${0.6 + flicker * 0.18})`;
     ctx.fillRect(s.x - camX * 0.2 - 3, s.y - 3, 6, 6);
   });
 
@@ -2776,90 +2848,88 @@ function drawProjectile(proj, now) {
   const py = proj.y;
   if (px < -20 || px > VW + 20) return;
 
-  const rot = now * 0.008 + proj.x * 0.1;
-  const pulse = (Math.sin(now * 0.012) + 1) / 2;
+  // Gentle wobble so envelopes feel thrown, not stamped
+  const wobble = Math.sin(now * 0.006 + proj.x * 0.05) * 0.18;
+  const pulse = (Math.sin(now * 0.01) + 1) / 2;
 
-  // Painterly trail particles with gradient
+  // Soft motion-trail (papery, cool tone)
   const trail1Grad = ctx.createRadialGradient(
     px - proj.vx * 0.03, py - proj.vy * 0.03, 0,
-    px - proj.vx * 0.03, py - proj.vy * 0.03, 8
+    px - proj.vx * 0.03, py - proj.vy * 0.03, 9
   );
-  trail1Grad.addColorStop(0, `rgba(255,120,60,${0.25 + pulse * 0.15})`);
-  trail1Grad.addColorStop(1, `rgba(255,80,20,0)`);
+  trail1Grad.addColorStop(0, `rgba(220,220,255,${0.22 + pulse * 0.1})`);
+  trail1Grad.addColorStop(1, `rgba(180,180,220,0)`);
   ctx.fillStyle = trail1Grad;
-  ctx.beginPath(); ctx.arc(px - proj.vx * 0.03, py - proj.vy * 0.03, 8, 0, 6.28); ctx.fill();
-
-  const trail2Grad = ctx.createRadialGradient(
-    px - proj.vx * 0.06, py - proj.vy * 0.06, 0,
-    px - proj.vx * 0.06, py - proj.vy * 0.06, 5
-  );
-  trail2Grad.addColorStop(0, 'rgba(255,100,40,0.15)');
-  trail2Grad.addColorStop(1, 'rgba(255,50,0,0)');
-  ctx.fillStyle = trail2Grad;
-  ctx.beginPath(); ctx.arc(px - proj.vx * 0.06, py - proj.vy * 0.06, 5, 0, 6.28); ctx.fill();
+  ctx.beginPath(); ctx.arc(px - proj.vx * 0.03, py - proj.vy * 0.03, 9, 0, 6.28); ctx.fill();
 
   ctx.save();
   ctx.translate(px, py);
-  ctx.rotate(rot);
+  ctx.rotate(wobble);
 
-  // Outer painterly glow - larger and softer
-  const glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 15);
-  glowGrad.addColorStop(0, `rgba(255,100,30,${0.4 + pulse*0.2})`);
-  glowGrad.addColorStop(0.5, `rgba(255,60,10,${0.15})`);
-  glowGrad.addColorStop(1, 'rgba(255,0,0,0)');
+  // Faint glow
+  const glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 14);
+  glowGrad.addColorStop(0, `rgba(255,240,200,${0.28 + pulse*0.15})`);
+  glowGrad.addColorStop(1, 'rgba(255,220,150,0)');
   ctx.fillStyle = glowGrad;
-  ctx.beginPath(); ctx.arc(0, 0, 15, 0, 6.28); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, 14, 0, 6.28); ctx.fill();
 
-  // Main face circle with smoother gradient
-  const faceGrad = ctx.createRadialGradient(-2.5, -2.5, 1.5, 0, 0, 8);
-  faceGrad.addColorStop(0, '#ff8855');
-  faceGrad.addColorStop(0.5, '#ff5533');
-  faceGrad.addColorStop(0.85, '#dd3311');
-  faceGrad.addColorStop(1, '#bb1100');
-  ctx.fillStyle = faceGrad;
-  ctx.beginPath(); ctx.arc(0, 0, 8, 0, 6.28); ctx.fill();
+  // Envelope body (rectangle) — slight tilt up for "flying" feel
+  const envW = 14, envH = 10;
+  const envX = -envW / 2, envY = -envH / 2;
 
-  // Soft face outline
-  ctx.strokeStyle = '#990000';
-  ctx.lineWidth = 1.2;
-  ctx.globalAlpha = 0.6;
-  ctx.beginPath(); ctx.arc(0, 0, 8, 0, 6.28); ctx.stroke();
-  ctx.globalAlpha = 1;
+  // Drop shadow under envelope
+  ctx.fillStyle = 'rgba(0,0,0,0.22)';
+  ctx.fillRect(envX + 1, envY + 1, envW, envH);
 
-  // Angry eyebrows with curved strokes (V shapes)
-  ctx.strokeStyle = '#330000';
-  ctx.lineWidth = 1.8;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  // Left eyebrow (angled down toward center)
-  ctx.beginPath(); ctx.moveTo(-5, -4); ctx.lineTo(-2, -2.5); ctx.stroke();
-  // Right eyebrow (angled down toward center)
-  ctx.beginPath(); ctx.moveTo(5, -4); ctx.lineTo(2, -2.5); ctx.stroke();
+  // Envelope paper gradient (off-white → cream)
+  const paperGrad = ctx.createLinearGradient(0, envY, 0, envY + envH);
+  paperGrad.addColorStop(0, '#ffffff');
+  paperGrad.addColorStop(0.5, '#f6f2e6');
+  paperGrad.addColorStop(1, '#e4dcc4');
+  ctx.fillStyle = paperGrad;
+  ctx.fillRect(envX, envY, envW, envH);
 
-  // Angry eyes with soft gradient
-  const eyeGlow = ctx.createRadialGradient(-4, -1.25, 0.5, -4, -1.25, 2.5);
-  eyeGlow.addColorStop(0, '#ffffff');
-  eyeGlow.addColorStop(1, '#ffeeee');
-  ctx.fillStyle = eyeGlow;
-  ctx.beginPath(); ctx.arc(-4, -1.25, 2, 0, 6.28); ctx.fill();
+  // Envelope outline
+  ctx.strokeStyle = '#6a5a3a';
+  ctx.lineWidth = 0.8;
+  ctx.strokeRect(envX, envY, envW, envH);
 
-  const eyeGlow2 = ctx.createRadialGradient(3.5, -1.25, 0.5, 3.5, -1.25, 2.5);
-  eyeGlow2.addColorStop(0, '#ffffff');
-  eyeGlow2.addColorStop(1, '#ffeeee');
-  ctx.fillStyle = eyeGlow2;
-  ctx.beginPath(); ctx.arc(3.5, -1.25, 2, 0, 6.28); ctx.fill();
-
-  // Pupils
-  ctx.fillStyle = '#110000';
-  ctx.beginPath(); ctx.arc(-4, -0.5, 1.2, 0, 6.28); ctx.fill();
-  ctx.beginPath(); ctx.arc(3.5, -0.5, 1.2, 0, 6.28); ctx.fill();
-
-  // Frown mouth - smoother arc
-  ctx.strokeStyle = '#330000';
-  ctx.lineWidth = 1.3;
-  ctx.lineCap = 'round';
+  // Envelope FLAP — triangle from top corners down to center
   ctx.beginPath();
-  ctx.arc(0, 5, 3.5, Math.PI + 0.4, -0.4);
+  ctx.moveTo(envX, envY);
+  ctx.lineTo(0, envY + envH * 0.55);
+  ctx.lineTo(envX + envW, envY);
+  // Fill flap with slightly darker cream
+  const flapGrad = ctx.createLinearGradient(0, envY, 0, envY + envH * 0.55);
+  flapGrad.addColorStop(0, '#f2ead0');
+  flapGrad.addColorStop(1, '#d8cba0');
+  ctx.fillStyle = flapGrad;
+  ctx.fill();
+  ctx.strokeStyle = '#6a5a3a';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // Red WAX SEAL / urgent dot in the center
+  const sealGrad = ctx.createRadialGradient(0, envY + envH * 0.6, 0.5, 0, envY + envH * 0.6, 2.2);
+  sealGrad.addColorStop(0, '#ff7070');
+  sealGrad.addColorStop(0.6, '#cc2222');
+  sealGrad.addColorStop(1, '#881010');
+  ctx.fillStyle = sealGrad;
+  ctx.beginPath(); ctx.arc(0, envY + envH * 0.55, 1.8, 0, 6.28); ctx.fill();
+
+  // Tiny "@" on the envelope body (stylized: short arc)
+  ctx.strokeStyle = '#3a5a9a';
+  ctx.lineWidth = 0.7;
+  ctx.beginPath();
+  ctx.arc(envX + 3, envY + envH - 2.5, 1.2, 0, 6.28);
+  ctx.stroke();
+
+  // Subtle highlight on top edge
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(envX + 1, envY + 0.5);
+  ctx.lineTo(envX + envW - 1, envY + 0.5);
   ctx.stroke();
 
   ctx.restore();
@@ -2938,7 +3008,119 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
   };
   // ─────────────────────────────────────────────────────────────────────
 
-  if (cls === 'architect') {
+  if (cls === 'intern') {
+    // Intern architect: hard hat, glasses, safety vest, clipboard
+    shadow();
+    boots(0.08, 0.56, 0.72, 0.36, 0.26, '#4a3a2a');
+
+    // White dress shirt underlayer
+    const shirtGrad = ctx.createLinearGradient(0, y+ph*0.38+bob, 0, y+ph*0.72+bob);
+    shirtGrad.addColorStop(0, '#f4f4f0');
+    shirtGrad.addColorStop(1, '#c8c8c0');
+    ctx.fillStyle = shirtGrad;
+    ctx.beginPath(); ctx.ellipse(x+pw*0.5, y+ph*0.55+bob, pw*0.42, ph*0.22, 0, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 0.7; ctx.stroke();
+
+    // Safety vest (hi-vis yellow) over the shirt
+    const vestGrad = ctx.createLinearGradient(0, y+ph*0.4+bob, 0, y+ph*0.7+bob);
+    vestGrad.addColorStop(0, '#fff15a');
+    vestGrad.addColorStop(0.5, data.color);
+    vestGrad.addColorStop(1, '#c9a200');
+    ctx.fillStyle = vestGrad;
+    ctx.beginPath();
+    ctx.moveTo(x+pw*0.18, y+ph*0.42+bob);
+    ctx.lineTo(x+pw*0.82, y+ph*0.42+bob);
+    ctx.lineTo(x+pw*0.88, y+ph*0.72+bob);
+    ctx.lineTo(x+pw*0.12, y+ph*0.72+bob);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)'; ctx.lineWidth = 0.8; ctx.stroke();
+    // Vest zipper / seam
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.moveTo(x+pw*0.5, y+ph*0.42+bob); ctx.lineTo(x+pw*0.5, y+ph*0.72+bob); ctx.stroke();
+    // Reflective stripe
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillRect(x+pw*0.15, y+ph*0.6+bob, pw*0.7, ph*0.03);
+
+    skinArms(0.42, 0.3, 1);
+
+    // Head
+    const headGrad = ctx.createRadialGradient(x+pw*0.5, y+ph*0.22+bob, pw*0.05, x+pw*0.5, y+ph*0.22+bob, pw*0.35);
+    headGrad.addColorStop(0, data.skin);
+    headGrad.addColorStop(0.8, '#9a7563');
+    headGrad.addColorStop(1, '#7a5a4a');
+    ctx.fillStyle = headGrad;
+    ctx.beginPath(); ctx.ellipse(x+pw*0.5, y+ph*0.24+bob, pw*0.33, ph*0.23, 0, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1; ctx.stroke();
+
+    // Small tuft of hair peeking under the hard hat
+    ctx.fillStyle = data.hair;
+    ctx.beginPath(); ctx.ellipse(x+pw*0.5, y+ph*0.17+bob, pw*0.28, ph*0.05, 0, 0, 6.28); ctx.fill();
+
+    // HARD HAT (safety yellow w/ brim)
+    const hatGrad = ctx.createRadialGradient(x+pw*0.5, y+ph*0.08+bob, pw*0.08, x+pw*0.5, y+ph*0.1+bob, pw*0.4);
+    hatGrad.addColorStop(0, '#fff280');
+    hatGrad.addColorStop(0.6, '#f5c842');
+    hatGrad.addColorStop(1, '#b88b10');
+    ctx.fillStyle = hatGrad;
+    // Dome
+    ctx.beginPath(); ctx.ellipse(x+pw*0.5, y+ph*0.11+bob, pw*0.32, ph*0.14, 0, Math.PI, 0); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 0.9; ctx.stroke();
+    // Brim
+    ctx.fillStyle = '#d9a41f';
+    ctx.beginPath(); ctx.ellipse(x+pw*0.5, y+ph*0.135+bob, pw*0.42, ph*0.028, 0, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 0.8; ctx.stroke();
+    // Hard-hat ridge
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.moveTo(x+pw*0.5, y+ph*0.02+bob); ctx.lineTo(x+pw*0.5, y+ph*0.12+bob); ctx.stroke();
+
+    // GLASSES (round frames)
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = 'rgba(200,220,240,0.55)';
+    ctx.beginPath(); ctx.arc(x+pw*0.36, y+ph*0.25+bob, pw*0.08, 0, 6.28); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x+pw*0.64, y+ph*0.25+bob, pw*0.08, 0, 6.28); ctx.fill(); ctx.stroke();
+    // Bridge
+    ctx.beginPath();
+    ctx.moveTo(x+pw*0.44, y+ph*0.25+bob); ctx.lineTo(x+pw*0.56, y+ph*0.25+bob); ctx.stroke();
+    // Eye dots through lenses
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(x+pw*0.36, y+ph*0.25+bob, 0.9, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+pw*0.64, y+ph*0.25+bob, 0.9, 0, 6.28); ctx.fill();
+
+    // Small neutral mouth
+    ctx.strokeStyle = 'rgba(60,40,30,0.7)'; ctx.lineWidth = 0.7;
+    ctx.beginPath();
+    ctx.moveTo(x+pw*0.44, y+ph*0.36+bob); ctx.lineTo(x+pw*0.56, y+ph*0.36+bob);
+    ctx.stroke();
+    if (isEnemy) angryBrows(0.26, 0.18, 0.34, 0.16, 0.74, 0.66);
+
+    // CLIPBOARD in right hand
+    ctx.save();
+    ctx.translate(x+pw*0.92, y+ph*0.58+bob);
+    ctx.rotate(0.15);
+    // Board
+    ctx.fillStyle = '#8b5a2b';
+    ctx.fillRect(-pw*0.1, -ph*0.12, pw*0.2, ph*0.22);
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 0.7;
+    ctx.strokeRect(-pw*0.1, -ph*0.12, pw*0.2, ph*0.22);
+    // Paper
+    ctx.fillStyle = '#fafaf0';
+    ctx.fillRect(-pw*0.08, -ph*0.1, pw*0.16, ph*0.18);
+    // Clip
+    ctx.fillStyle = '#999';
+    ctx.fillRect(-pw*0.05, -ph*0.13, pw*0.1, ph*0.03);
+    // Lines on paper
+    ctx.strokeStyle = 'rgba(100,100,160,0.5)'; ctx.lineWidth = 0.5;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-pw*0.07, -ph*0.06 + i*ph*0.05);
+      ctx.lineTo( pw*0.07, -ph*0.06 + i*ph*0.05);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+  } else if (cls === 'architect') {
     shadow();
     boots(0.05, 0.55, 0.72, 0.4, 0.28, '#8b5513');
 
@@ -4812,7 +4994,44 @@ function drawPlayerProjectile(proj, now) {
   if (x < -50 || x > VW + 50) return;
   const y = proj.y;
 
-  if (proj.type === 'arrow') {
+  if (proj.type === 'blueprint') {
+    // Rolled-up blueprint scroll
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(proj.rotation || 0);
+
+    // Soft glow
+    const bpGlow = ctx.createRadialGradient(0, 0, 1, 0, 0, 10);
+    bpGlow.addColorStop(0, 'rgba(120,180,255,0.25)');
+    bpGlow.addColorStop(1, 'rgba(60,120,220,0)');
+    ctx.fillStyle = bpGlow;
+    ctx.beginPath(); ctx.arc(0, 0, 10, 0, 6.28); ctx.fill();
+
+    // Scroll tube (blueprint-blue outer paper)
+    const tubeGrad = ctx.createLinearGradient(0, -4, 0, 4);
+    tubeGrad.addColorStop(0, '#4a7ad0');
+    tubeGrad.addColorStop(0.5, '#2e55aa');
+    tubeGrad.addColorStop(1, '#1b3a80');
+    ctx.fillStyle = tubeGrad;
+    ctx.fillRect(-7, -3, 14, 6);
+
+    // End caps (rolled paper edges)
+    ctx.fillStyle = '#e8eeff';
+    ctx.beginPath(); ctx.arc(-7, 0, 3, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.arc( 7, 0, 3, 0, 6.28); ctx.fill();
+
+    // Paper-line detail on caps
+    ctx.strokeStyle = '#aab8dd';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.arc(-7, 0, 2, 0, 6.28); ctx.stroke();
+    ctx.beginPath(); ctx.arc( 7, 0, 2, 0, 6.28); ctx.stroke();
+
+    // Tie/ribbon across the middle
+    ctx.fillStyle = '#ffcc33';
+    ctx.fillRect(-1, -4, 2, 8);
+
+    ctx.restore();
+  } else if (proj.type === 'arrow') {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(proj.vx < 0 ? Math.PI : 0);
@@ -5324,9 +5543,9 @@ function showMsg(t,ms){
 function draw(now){
   ctx.clearRect(0,0,VW,VH);
 
-  // Apply screen shake
+  // Apply screen shake + camera punch
   ctx.save();
-  ctx.translate(screenShake.x, screenShake.y);
+  ctx.translate(screenShake.x, screenShake.y + camPunch.y);
 
   drawBG(now);
   PLATFORMS.forEach(p=>drawPlatform(p));
@@ -5719,7 +5938,13 @@ function handleTitleClick(e) {
   const my = (e.clientY - rect.top) * scaleY;
   const btn = getPlayButtonRect();
   if (mx >= btn.x && mx <= btn.x + btn.w && my >= btn.y && my <= btn.y + btn.h) {
-    goToCharSelect();
+    // Skip char select — player is always the intern architect
+    selectedChar = INTERN;
+    fadeTransition(() => {
+      stopTitleLoop();
+      document.getElementById('title').style.display = 'none';
+      startGame();
+    });
   }
 }
 
@@ -5737,64 +5962,8 @@ function titleLoop(now) {
   tc.fillStyle = bg;
   tc.fillRect(0, 0, TITLE_W, TITLE_H);
 
-  // === FLUORESCENT CEILING LIGHTS (rectangular warm white glows) ===
-  const lightPhase = now * 0.0002;
-  const ceilingLights = [
-    {x:0.2, y:0.1, w:80, h:12, opacity: 0.15},
-    {x:0.75, y:0.12, w:90, h:14, opacity: 0.13},
-    {x:0.5, y:0.08, w:100, h:13, opacity: 0.14}
-  ];
-  ceilingLights.forEach(light => {
-    const pulse = (Math.sin(lightPhase + light.x * 5) + 1) / 2;
-    const lx = TITLE_W * light.x;
-    const ly = TITLE_H * light.y;
-
-    // Soft horizontal glow rectangle
-    const lightGrad = tc.createLinearGradient(lx - light.w, ly, lx + light.w, ly);
-    lightGrad.addColorStop(0, `rgba(255,240,200,0)`);
-    lightGrad.addColorStop(0.2, `rgba(255,245,220,${(light.opacity + pulse * 0.06) * 0.8})`);
-    lightGrad.addColorStop(0.5, `rgba(255,250,230,${light.opacity + pulse * 0.08})`);
-    lightGrad.addColorStop(0.8, `rgba(255,245,220,${(light.opacity + pulse * 0.06) * 0.8})`);
-    lightGrad.addColorStop(1, `rgba(255,240,200,0)`);
-    tc.fillStyle = lightGrad;
-    tc.fillRect(lx - light.w, ly - light.h/2, light.w * 2, light.h);
-  });
-
-  // === CITY SKYLINE at bottom (dark building rectangles with lit windows) ===
-  menuStars.forEach(s => {
-    // Reuse menuStars array to draw building rectangles instead
-    const layerSpeed = [0.3, 0.7, 1.2][s.layer];
-    s.x -= s.speed * layerSpeed;
-    if (s.x < -5) s.x = TITLE_W + 5;
-
-    // Draw building as a dark rectangle
-    const buildingH = 80 + s.layer * 40;
-    const buildingW = 40 + Math.random() * 30;
-    const buildingX = s.x;
-    const buildingY = TITLE_H * 0.65 - buildingH;
-
-    tc.fillStyle = `rgba(15,20,35,0.8)`;
-    tc.fillRect(buildingX, buildingY, buildingW, buildingH);
-
-    // Draw lit windows (small yellow/white rectangles)
-    const windowSize = 4;
-    const windowGap = 8;
-    for (let wx = buildingX + 6; wx < buildingX + buildingW - 4; wx += windowGap) {
-      for (let wy = buildingY + 8; wy < buildingY + buildingH - 4; wy += windowGap) {
-        // Randomly lit windows
-        if (Math.random() > 0.3) {
-          const windowGlow = tc.createRadialGradient(wx + 2, wy + 2, 0, wx + 2, wy + 2, 5);
-          windowGlow.addColorStop(0, `rgba(255,240,150,0.6)`);
-          windowGlow.addColorStop(1, `rgba(255,220,100,0.1)`);
-          tc.fillStyle = windowGlow;
-          tc.beginPath(); tc.arc(wx + 2, wy + 2, 5, 0, 6.28); tc.fill();
-
-          tc.fillStyle = `rgba(255,245,180,0.8)`;
-          tc.fillRect(wx, wy, windowSize, windowSize);
-        }
-      }
-    }
-  });
+  // Background lights intentionally removed from the start menu for a calmer screen.
+  // (Former fluorescent ceiling lights and lit-window skyline lived here.)
 
   // === PAPER AIRPLANE PARTICLES (occasional) ===
   if (Math.random() < 0.003) {
@@ -6620,26 +6789,23 @@ function goToCharSelect() {
 //  START
 // ═══════════════════════════════════════════════════
 function startGame(){
-  if (!selectedChar) {
-    alert('Please select a character!');
-    return;
-  }
+  // Default to intern architect if no character has been chosen
+  if (!selectedChar) selectedChar = INTERN;
 
-  fadeTransition(() => {
-    stopCharSelectLoop();
-    document.getElementById('charselect').style.display='none';
-    document.getElementById('hud').style.display='flex';
-    document.getElementById('game-wrap').style.display='flex';
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-      document.getElementById('controls').style.display='flex';
-    }
-    resizeCanvas();
-    initState();
-    lastT=performance.now();
-    showMsg('GO!',1000);
-    bgMusic();
-    requestAnimationFrame(loop);
-  });
+  stopCharSelectLoop();
+  document.getElementById('charselect').style.display='none';
+  document.getElementById('title').style.display='none';
+  document.getElementById('hud').style.display='flex';
+  document.getElementById('game-wrap').style.display='flex';
+  if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+    document.getElementById('controls').style.display='flex';
+  }
+  resizeCanvas();
+  initState();
+  lastT=performance.now();
+  showMsg('GO!',1000);
+  bgMusic();
+  requestAnimationFrame(loop);
 }
 
 // ═══════════════════════════════════════════════════
