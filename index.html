@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>Dysfunctional Family</title>
+<title>Dysfunctional Architecture</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 html,body { width:100%; height:100%; background:#0a0a1a; overflow:hidden; font-family:monospace; }
@@ -92,7 +92,7 @@ cursor:pointer; letter-spacing:2px; box-shadow:4px 4px 0 #7a4a00;
 
 <div id="hud">
   <span id="hud-hp" style="display:none;">❤❤❤</span>
-  <span>DYSFUNCTIONAL FAMILY</span>
+  <span>DYSFUNCTIONAL ARCHITECTURE</span>
   <span id="hud-coins">COINS: 0</span>
 </div>
 
@@ -112,14 +112,14 @@ cursor:pointer; letter-spacing:2px; box-shadow:4px 4px 0 #7a4a00;
 
 <div id="win" class="overlay">
   <h2>YOU WIN!</h2>
-  <p>You survived your dysfunctional family!</p>
+  <p>You survived the office!</p>
   <div id="win-stats"></div>
   <button onclick="location.reload()">PLAY AGAIN</button>
 </div>
 
 <div id="gameover" class="overlay">
   <h2>GAME OVER</h2>
-  <p>Your family was too much for you!</p>
+  <p>The office was too much for you!</p>
   <div id="gameover-stats"></div>
   <button onclick="location.reload()">PLAY AGAIN</button>
 </div>
@@ -137,25 +137,25 @@ cursor:pointer; letter-spacing:2px; box-shadow:4px 4px 0 #7a4a00;
 
 <script>
 // ═══════════════════════════════════════════════════
-//  FAMILY DATA
+//  OFFICE DATA
 // ═══════════════════════════════════════════════════
-const FAMILY = [
-  { name:'Greg',     color:'#2eaa55', skin:'#d4a574', hair:'#4a3520', cls:'archer',  x:420,  msg:"Greg: Keep going, hero!" },
-  { name:'William',  color:'#2255cc', skin:'#8d5524', hair:'#1a1a1a', cls:'knight',  x:560,  msg:"William: Jump over everything!" },
-  { name:'Megan',    color:'#aa22aa', skin:'#f1c27d', hair:'#6b3a2a', cls:'rogue',   x:900,  msg:"Megan: Watch out up ahead!" },
-  { name:'Jada',     color:'#dd6600', skin:'#8d5524', hair:'#1a1a1a', cls:'warrior', x:1050, msg:"Jada: You can make it!" },
-  { name:'Cade',     color:'#229999', skin:'#f1c27d', hair:'#5a3010', cls:'ninja',   x:1500, msg:"Cade: Halfway there!" },
-  { name:'Casey',    color:'#cc2222', skin:'#f1c27d', hair:'#8b4513', cls:'swordsman', x:1650, msg:"Casey: Nice jumping!" },
-  { name:'Ashley',   color:'#cc44aa', skin:'#d4a574', hair:'#3a1a0a', cls:'mage',    x:2100, msg:"Ashley: Almost at the end!" },
-  { name:'Courtney', color:'#aaaa22', skin:'#f1c27d', hair:'#c4721a', cls:'ranger',  x:2280, msg:"Courtney: Go go go!" },
+const OFFICE = [
+  { name:'Joe O.',    color:'#2eaa55', skin:'#d4a574', hair:'#4a3520', cls:'architect',    x:420,  msg:"Joe O.: Check those load calcs!" },
+  { name:'Lucas',     color:'#2255cc', skin:'#8d5524', hair:'#1a1a1a', cls:'engineer',     x:560,  msg:"Lucas: Mind the setbacks!" },
+  { name:'Matt',      color:'#aa22aa', skin:'#f1c27d', hair:'#6b3a2a', cls:'draftsman',    x:900,  msg:"Matt: Redlines incoming!" },
+  { name:'Cade',      color:'#dd6600', skin:'#f1c27d', hair:'#5a3010', cls:'inspector',    x:1050, msg:"Cade: That's not to code!" },
+  { name:'Jun',       color:'#229999', skin:'#f1c27d', hair:'#1a1a1a', cls:'designer',     x:1500, msg:"Jun: Halfway through punch list!" },
+  { name:'Ava',       color:'#cc2222', skin:'#f1c27d', hair:'#8b4513', cls:'surveyor',     x:1650, msg:"Ava: Nice elevation!" },
+  { name:'Shannon',   color:'#cc44aa', skin:'#d4a574', hair:'#3a1a0a', cls:'planner',      x:2100, msg:"Shannon: Almost at CO!" },
+  { name:'Sreeteja',  color:'#aaaa22', skin:'#f1c27d', hair:'#c4721a', cls:'estimator',    x:2280, msg:"Sreeteja: Under budget, go go!" },
 ];
 
 const INSULTS = [
-  "You're adopted!", "Mom likes me best!", "You can't even jump!",
-  "Nice outfit, loser!", "I'm telling Mom!", "You throw like a baby!",
-  "Nobody invited you!", "You smell like feet!", "Go back to your room!",
-  "You're grounded!", "I'm the favorite!", "You're embarrassing!",
-  "Try harder, weirdo!", "Couldn't be me!", "LOL you're so slow!"
+  "Your drawings aren't to scale!", "I'm telling the PM!", "That's not ADA compliant!",
+  "Your specs are incomplete!", "Who approved this submittal?", "You forgot the fire rating!",
+  "Nice redlines, intern!", "Back to the drafting table!", "That's a change order!",
+  "You're over budget!", "I CC'd the client!", "Your RFI is rejected!",
+  "Read the code, rookie!", "Couldn't pass inspection!", "LOL your column grid is off!"
 ];
 
 // ═══════════════════════════════════════════════════
@@ -184,50 +184,50 @@ const LEVEL_W = 3600;
 const GROUND_Y = VH - 32;
 
 const PLATFORMS = [
-  [0,    GROUND_Y, 320,  32, '#4a7a2a'],
-  [380,  GROUND_Y, 280,  32, '#4a7a2a'],
-  [720,  GROUND_Y, 250,  32, '#4a7a2a'],
-  [1040, GROUND_Y, 300,  32, '#4a7a2a'],
-  [1420, GROUND_Y, 260,  32, '#4a7a2a'],
-  [1760, GROUND_Y, 300,  32, '#4a7a2a'],
-  [2140, GROUND_Y, 660,  32, '#4a7a2a'],
+  [0,    GROUND_Y, 320,  32, '#6a6a7a'],
+  [380,  GROUND_Y, 280,  32, '#6a6a7a'],
+  [720,  GROUND_Y, 250,  32, '#6a6a7a'],
+  [1040, GROUND_Y, 300,  32, '#6a6a7a'],
+  [1420, GROUND_Y, 260,  32, '#6a6a7a'],
+  [1760, GROUND_Y, 300,  32, '#6a6a7a'],
+  [2140, GROUND_Y, 660,  32, '#6a6a7a'],
 
-  [150,  GROUND_Y-70,  80, 14, '#7a5a2a'],
-  [290,  GROUND_Y-110, 70, 14, '#7a5a2a'],
-  [420,  GROUND_Y-75,  90, 14, '#7a5a2a'],
-  [560,  GROUND_Y-120, 80, 14, '#7a5a2a'],
+  [150,  GROUND_Y-70,  80, 14, '#8a7a6a'],
+  [290,  GROUND_Y-110, 70, 14, '#8a7a6a'],
+  [420,  GROUND_Y-75,  90, 14, '#8a7a6a'],
+  [560,  GROUND_Y-120, 80, 14, '#8a7a6a'],
 
-  [780,  GROUND_Y-80,  80, 14, '#7a5a2a'],
-  [900,  GROUND_Y-55,  90, 14, '#7a5a2a'],
-  [1010, GROUND_Y-110, 70, 14, '#7a5a2a'],
+  [780,  GROUND_Y-80,  80, 14, '#8a7a6a'],
+  [900,  GROUND_Y-55,  90, 14, '#8a7a6a'],
+  [1010, GROUND_Y-110, 70, 14, '#8a7a6a'],
 
-  [1100, GROUND_Y-80,  80, 14, '#7a5a2a'],
-  [1220, GROUND_Y-130, 90, 14, '#7a5a2a'],
-  [1340, GROUND_Y-75,  80, 14, '#7a5a2a'],
+  [1100, GROUND_Y-80,  80, 14, '#8a7a6a'],
+  [1220, GROUND_Y-130, 90, 14, '#8a7a6a'],
+  [1340, GROUND_Y-75,  80, 14, '#8a7a6a'],
 
-  [1500, GROUND_Y-90,  80, 14, '#7a5a2a'],
-  [1620, GROUND_Y-60,  90, 14, '#7a5a2a'],
-  [1740, GROUND_Y-120, 70, 14, '#7a5a2a'],
+  [1500, GROUND_Y-90,  80, 14, '#8a7a6a'],
+  [1620, GROUND_Y-60,  90, 14, '#8a7a6a'],
+  [1740, GROUND_Y-120, 70, 14, '#8a7a6a'],
 
-  [1820, GROUND_Y-80,  80, 14, '#7a5a2a'],
-  [1960, GROUND_Y-110, 90, 14, '#7a5a2a'],
-  [2080, GROUND_Y-70,  80, 14, '#7a5a2a'],
+  [1820, GROUND_Y-80,  80, 14, '#8a7a6a'],
+  [1960, GROUND_Y-110, 90, 14, '#8a7a6a'],
+  [2080, GROUND_Y-70,  80, 14, '#8a7a6a'],
 
-  [2200, GROUND_Y-90,  80, 14, '#7a5a2a'],
-  [2360, GROUND_Y-70,  90, 14, '#7a5a2a'],
-  [2520, GROUND_Y-110, 80, 14, '#7a5a2a'],
-  [2660, GROUND_Y-80,  80, 14, '#7a5a2a'],
+  [2200, GROUND_Y-90,  80, 14, '#8a7a6a'],
+  [2360, GROUND_Y-70,  90, 14, '#8a7a6a'],
+  [2520, GROUND_Y-110, 80, 14, '#8a7a6a'],
+  [2660, GROUND_Y-80,  80, 14, '#8a7a6a'],
 
-  // Boss arena - large platform for Charla the dragon fight
-  [2900, GROUND_Y, 600, 32, '#4a7a2a'],
+  // Boss arena - large platform for The Building Inspector boss fight
+  [2900, GROUND_Y, 600, 32, '#6a6a7a'],
   // Floating platforms in boss arena - tiered so player can hop up
   // Tier 1: reachable from ground (~60-70px up, max jump ~93px)
-  [2940, GROUND_Y-60, 90, 14, '#7a5a2a'],
-  [3150, GROUND_Y-55, 90, 14, '#7a5a2a'],
-  [3350, GROUND_Y-65, 80, 14, '#7a5a2a'],
+  [2940, GROUND_Y-60, 90, 14, '#8a7a6a'],
+  [3150, GROUND_Y-55, 90, 14, '#8a7a6a'],
+  [3350, GROUND_Y-65, 80, 14, '#8a7a6a'],
   // Tier 2: reachable from tier 1 platforms (~120px up from ground)
-  [3040, GROUND_Y-110, 90, 14, '#7a5a2a'],
-  [3250, GROUND_Y-115, 80, 14, '#7a5a2a'],
+  [3040, GROUND_Y-110, 90, 14, '#8a7a6a'],
+  [3250, GROUND_Y-115, 80, 14, '#8a7a6a'],
 ];
 
 const CHECKPOINTS = [
@@ -601,7 +601,7 @@ function lightenColor(hex, factor=1.3) {
 // ═══════════════════════════════════════════════════
 //  HIGH SCORE
 // ═══════════════════════════════════════════════════
-const HS_KEY = 'dfam_highscore';
+const HS_KEY = 'darch_highscore';
 function loadHighScore() { return parseInt(localStorage.getItem(HS_KEY) || '0', 10); }
 function saveHighScore(s) { if (s > loadHighScore()) localStorage.setItem(HS_KEY, s); }
 
@@ -704,8 +704,8 @@ function initState(){
   checkpointsReached = new Array(CHECKPOINTS.length).fill(false);
   checkpointsReached[0] = true;
 
-  // Create enemies from non-selected family members
-  enemies = FAMILY.filter(f => f.name !== selectedChar.name).map(f => {
+  // Create enemies from non-selected office members
+  enemies = OFFICE.filter(f => f.name !== selectedChar.name).map(f => {
     let py = GROUND_Y;
     let patrolLeft = f.x - 40;
     let patrolRight = f.x + 40;
@@ -719,14 +719,14 @@ function initState(){
 
     // Assign behavior based on class
     const behaviors = {
-      archer: 'sniper',
-      knight: 'charger',
-      rogue: 'ambush',
-      warrior: 'tank',
-      ninja: 'jumper',
-      swordsman: 'standard',
-      mage: 'teleport',
-      ranger: 'kiter',
+      architect: 'sniper',
+      engineer: 'charger',
+      draftsman: 'ambush',
+      inspector: 'tank',
+      designer: 'jumper',
+      surveyor: 'standard',
+      planner: 'teleport',
+      estimator: 'kiter',
     };
     const behavior = behaviors[f.cls] || 'standard';
 
@@ -842,7 +842,7 @@ function triggerAbility(){
   sfxAbility();
 
   switch(cls) {
-    case 'archer':
+    case 'architect':
       // Fire arrow projectile
       playerProjectiles.push({
         x: player.x + player.w/2 + facing * 8,
@@ -856,7 +856,7 @@ function triggerAbility(){
       player.abilityTimer = 3;
       break;
 
-    case 'knight':
+    case 'engineer':
       // Shield bash - forward lunge with invincibility
       player.vx = facing * 250;
       player.abilityActive = true;
@@ -874,7 +874,7 @@ function triggerAbility(){
       });
       break;
 
-    case 'rogue':
+    case 'draftsman':
       // Dash - quick teleport forward
       const dashDist = 80;
       player.x += facing * dashDist;
@@ -891,7 +891,7 @@ function triggerAbility(){
       }
       break;
 
-    case 'ninja':
+    case 'designer':
       // Throw 3 shuriken in spread
       for (let i = -1; i <= 1; i++) {
         playerProjectiles.push({
@@ -908,7 +908,7 @@ function triggerAbility(){
       player.abilityTimer = 3;
       break;
 
-    case 'warrior':
+    case 'inspector':
       // Ground slam - jump then slam down if in air
       if (!player.onGround) {
         player.vy = 400; // Force downward
@@ -922,7 +922,7 @@ function triggerAbility(){
       player.abilityTimer = 5;
       break;
 
-    case 'swordsman':
+    case 'surveyor':
       // Sword slash - short range melee
       playerProjectiles.push({
         x: player.x + player.w/2 + facing * 12,
@@ -935,7 +935,7 @@ function triggerAbility(){
       player.abilityTimer = 3;
       break;
 
-    case 'mage':
+    case 'planner':
       // Magic orb - homing projectile
       let nearestEnemy = null;
       let nearestDist = Infinity;
@@ -962,7 +962,7 @@ function triggerAbility(){
       player.abilityTimer = 5;
       break;
 
-    case 'ranger':
+    case 'estimator':
       // Rapid shot - 3 arrows in succession
       for (let i = 0; i < 3; i++) {
         setTimeout(() => {
@@ -2171,7 +2171,7 @@ function update(dt, now){
     for (let lp of LAVA_POOLS) {
       if (Math.abs(player.x - lp.x) < 100) {
         tutorials.firstLava = true;
-        showMsg("DANGER! LAVA DEALS DAMAGE!\nWATER IS SAFE - IT BOUNCES YOU OUT", 3000);
+        showMsg("DANGER! HOT COFFEE BURNS!\nINK IS SAFE - IT BOUNCES YOU OUT", 3000);
         break;
       }
     }
@@ -2264,129 +2264,156 @@ function updateHPDisplay() {
 //  DRAW HELPERS
 // ═══════════════════════════════════════════════════
 function drawBG(now){
-  // Rich gradient sky with nebula-like effect
+  // Dark blue-gray gradient sky for late-night office hours
   const skyGrad = ctx.createLinearGradient(0, 0, 0, VH);
-  skyGrad.addColorStop(0, '#0f0520');
-  skyGrad.addColorStop(0.4, '#1a0a3a');
-  skyGrad.addColorStop(0.7, '#2a1a4a');
-  skyGrad.addColorStop(1, '#3a2a5a');
+  skyGrad.addColorStop(0, '#0a1020');
+  skyGrad.addColorStop(0.5, '#1a2a3a');
+  skyGrad.addColorStop(1, '#2a3a4a');
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, VW, VH);
 
-  // Aurora-like subtle color waves
-  const auroraGrad = ctx.createLinearGradient(0, 0, VW, 0);
-  auroraGrad.addColorStop(0, 'rgba(100, 150, 255, 0.08)');
-  auroraGrad.addColorStop(0.5, 'rgba(200, 100, 150, 0.06)');
-  auroraGrad.addColorStop(1, 'rgba(100, 200, 150, 0.08)');
-  ctx.fillStyle = auroraGrad;
+  // Subtle light pollution glow from city
+  const glowGrad = ctx.createLinearGradient(0, 0, 0, VH);
+  glowGrad.addColorStop(0, 'rgba(50, 70, 100, 0)');
+  glowGrad.addColorStop(0.7, 'rgba(80, 100, 120, 0.1)');
+  glowGrad.addColorStop(1, 'rgba(100, 120, 150, 0.15)');
+  ctx.fillStyle = glowGrad;
   ctx.fillRect(0, 0, VW, VH);
 
-  // Soft star field with twinkling
-  bgStars.forEach(s => {
-    let tw = (Math.sin(now * 0.002 + s.twinkle) + 1) / 2;
-    if (s.bright) {
-      // Bright stars with soft glow
-      const glowGrad = ctx.createRadialGradient(s.x - camX * 0.2, s.y, 0, s.x - camX * 0.2, s.y, 4);
-      glowGrad.addColorStop(0, `rgba(255, 255, 220, ${0.8 + tw * 0.2})`);
-      glowGrad.addColorStop(1, `rgba(255, 255, 200, 0)`);
-      ctx.fillStyle = glowGrad;
-      ctx.beginPath();
-      ctx.arc(s.x - camX * 0.2, s.y, 4, 0, 6.28);
-      ctx.fill();
-    } else {
-      // Dimmer stars
-      ctx.fillStyle = `rgba(220, 220, 200, ${0.4 + tw * 0.4})`;
-      ctx.beginPath();
-      ctx.arc(s.x - camX * 0.2, s.y, s.r * 0.8, 0, 6.28);
-      ctx.fill();
+  // Far background buildings (furthest layer, parallax 0.08)
+  ctx.fillStyle = '#1a2a3a';
+  for (let i = 0; i < 10; i++) {
+    const bx = ((i * 400) - camX * 0.08) % LEVEL_W;
+    const bh = Math.sin(i * 0.5) * 80 + 150;
+    ctx.fillRect(bx, VH * 0.6 - bh, 180, bh);
+  }
+
+  // Mid-layer buildings (parallax 0.15)
+  ctx.fillStyle = '#0f1a2a';
+  for (let i = 0; i < 12; i++) {
+    const bx = ((i * 320) - camX * 0.15) % LEVEL_W;
+    const bh = Math.sin(i * 0.6) * 100 + 180;
+    ctx.fillRect(bx, VH * 0.6 - bh, 150, bh);
+  }
+
+  // Lit windows on mid-layer buildings (small yellow rectangles)
+  ctx.fillStyle = 'rgba(255, 240, 200, 0.8)';
+  for (let i = 0; i < 12; i++) {
+    const bx = ((i * 320) - camX * 0.15) % LEVEL_W;
+    const bh = Math.sin(i * 0.6) * 100 + 180;
+    // Draw scattered windows on building
+    for (let w = 0; w < 8; w++) {
+      const wx = bx + Math.random() * 140;
+      const wy = VH * 0.6 - bh + Math.random() * (bh - 20);
+      ctx.fillRect(wx, wy, 8, 10);
     }
+  }
+
+  // Foreground buildings (parallax 0.3)
+  ctx.fillStyle = '#0a0f1a';
+  for (let i = 0; i < 15; i++) {
+    const bx = ((i * 250) - camX * 0.3) % LEVEL_W;
+    const bh = Math.sin(i * 0.4) * 120 + 200;
+    ctx.fillRect(bx, VH * 0.6 - bh, 140, bh);
+  }
+
+  // Lit windows on foreground buildings (bright yellow lights)
+  ctx.fillStyle = 'rgba(255, 250, 200, 0.9)';
+  for (let i = 0; i < 15; i++) {
+    const bx = ((i * 250) - camX * 0.3) % LEVEL_W;
+    const bh = Math.sin(i * 0.4) * 120 + 200;
+    // Grid pattern windows
+    for (let row = 0; row < 12; row++) {
+      for (let col = 0; col < 4; col++) {
+        const wx = bx + col * 28 + 10;
+        const wy = VH * 0.6 - bh + 20 + row * 18;
+        // Some windows are off (darker)
+        if (Math.random() > 0.6) {
+          ctx.fillStyle = 'rgba(30, 30, 50, 0.7)';
+        } else {
+          ctx.fillStyle = 'rgba(255, 250, 200, 0.9)';
+        }
+        ctx.fillRect(wx, wy, 12, 12);
+      }
+    }
+  }
+
+  // Treat bgStars array as scattered window lights in the sky (extra ambient lights)
+  ctx.fillStyle = 'rgba(255, 245, 180, 0.7)';
+  bgStars.forEach(s => {
+    let flicker = (Math.sin(now * 0.002 + s.twinkle) + 1) / 2;
+    ctx.fillStyle = `rgba(255, 245, 180, ${0.5 + flicker * 0.4})`;
+    ctx.fillRect(s.x - camX * 0.2 - 3, s.y - 3, 6, 6);
   });
 
-  // Moon with realistic atmospheric glow and crater details
-  const moonX = VW * 0.78;
-  const moonY = VH * 0.14;
+  // Large glowing clock face at 5:00 (quitting time)
+  const clockX = VW * 0.78;
+  const clockY = VH * 0.14;
 
-  // Outer atmospheric haze
-  const haze = ctx.createRadialGradient(moonX, moonY, 15, moonX, moonY, 50);
-  haze.addColorStop(0, 'rgba(255, 255, 200, 0.15)');
-  haze.addColorStop(0.5, 'rgba(150, 180, 255, 0.06)');
-  haze.addColorStop(1, 'rgba(100, 150, 255, 0)');
-  ctx.fillStyle = haze;
+  // Clock glow
+  const clockGlow = ctx.createRadialGradient(clockX, clockY, 20, clockX, clockY, 50);
+  clockGlow.addColorStop(0, 'rgba(255, 200, 100, 0.3)');
+  clockGlow.addColorStop(0.5, 'rgba(200, 150, 50, 0.1)');
+  clockGlow.addColorStop(1, 'rgba(150, 100, 0, 0)');
+  ctx.fillStyle = clockGlow;
   ctx.beginPath();
-  ctx.arc(moonX, moonY, 50, 0, 6.28);
+  ctx.arc(clockX, clockY, 50, 0, 6.28);
   ctx.fill();
 
-  // Moon surface gradient
-  const moonGrad = ctx.createRadialGradient(moonX - 4, moonY - 4, 0, moonX, moonY, 22);
-  moonGrad.addColorStop(0, '#fffff0');
-  moonGrad.addColorStop(0.7, '#e8e8d0');
-  moonGrad.addColorStop(1, '#c0c0a0');
-  ctx.fillStyle = moonGrad;
+  // Clock face background
+  ctx.fillStyle = '#2a3a4a';
   ctx.beginPath();
-  ctx.arc(moonX, moonY, 22, 0, 6.28);
+  ctx.arc(clockX, clockY, 28, 0, 6.28);
   ctx.fill();
 
-  // Moon shadow
-  ctx.fillStyle = 'rgba(30, 30, 80, 0.4)';
+  // Clock rim (metallic look)
+  ctx.strokeStyle = 'rgba(200, 180, 150, 0.6)';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(moonX + 8, moonY - 5, 18, 0, 6.28);
-  ctx.fill();
+  ctx.arc(clockX, clockY, 28, 0, 6.28);
+  ctx.stroke();
 
-  // Soft inner glow
-  const innerGlow = ctx.createRadialGradient(moonX - 2, moonY - 2, 5, moonX, moonY, 20);
-  innerGlow.addColorStop(0, 'rgba(255, 255, 200, 0.4)');
-  innerGlow.addColorStop(1, 'rgba(255, 255, 200, 0)');
-  ctx.fillStyle = innerGlow;
-  ctx.beginPath();
-  ctx.arc(moonX, moonY, 20, 0, 6.28);
-  ctx.fill();
-
-  // Layered hills with atmospheric perspective
-  // Far hills (lightest, most desaturated)
-  ctx.fillStyle = '#2a4a5a';
-  for (let i = 0; i < 15; i++) {
-    const hx = ((i * 350) - camX * 0.08) % LEVEL_W - camX * 0.08 % 350;
-    ctx.beginPath();
-    ctx.moveTo(hx, VH * 0.72);
-    ctx.quadraticCurveTo(hx + 80, VH * 0.52, hx + 160, VH * 0.72);
-    ctx.fill();
-    // Add soft shadow
-    ctx.fillStyle = 'rgba(10, 10, 30, 0.15)';
-    ctx.fill();
-    ctx.fillStyle = '#2a4a5a';
+  // Clock face with numbers visible (simplified)
+  ctx.fillStyle = '#e8d5b7';
+  ctx.font = 'bold 10px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Draw hour markers
+  for (let h = 1; h <= 12; h++) {
+    const angle = (h * Math.PI / 6) - Math.PI / 2;
+    const mx = clockX + Math.cos(angle) * 22;
+    const my = clockY + Math.sin(angle) * 22;
+    if (h === 5) {
+      ctx.fillStyle = 'rgba(255, 200, 100, 1)'; // Highlight 5 o'clock
+    } else {
+      ctx.fillStyle = 'rgba(232, 213, 183, 0.7)';
+    }
+    ctx.fillText(h, mx, my);
   }
 
-  // Mid hills (medium tone)
-  ctx.fillStyle = '#1a3a4a';
-  for (let i = 0; i < 12; i++) {
-    const hx = ((i * 280) - camX * 0.15) % LEVEL_W - camX * 0.15 % 280;
-    ctx.beginPath();
-    ctx.moveTo(hx, VH * 0.7);
-    ctx.quadraticCurveTo(hx + 60, VH * 0.45, hx + 120, VH * 0.7);
-    ctx.fill();
-  }
+  // Hour hand pointing to 5
+  ctx.strokeStyle = 'rgba(255, 200, 100, 0.9)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(clockX, clockY);
+  const hourAngle = (5 * Math.PI / 6) - Math.PI / 2;
+  ctx.lineTo(clockX + Math.cos(hourAngle) * 12, clockY + Math.sin(hourAngle) * 12);
+  ctx.stroke();
 
-  // Foreground silhouette trees with lush organic shapes
-  for (let i = 0; i < 40; i++) {
-    const tx = ((i * 70) - camX * 0.3) % LEVEL_W - camX * 0.3 % 70;
-    const th = Math.sin(i * 0.7 + now * 0.0002) * 25 + 55;
+  // Minute hand pointing to 12
+  ctx.strokeStyle = 'rgba(255, 220, 150, 0.9)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(clockX, clockY);
+  const minAngle = -Math.PI / 2;
+  ctx.lineTo(clockX + Math.cos(minAngle) * 18, clockY + Math.sin(minAngle) * 18);
+  ctx.stroke();
 
-    // Tree canopy with soft edges
-    ctx.fillStyle = '#0a2a1a';
-    ctx.beginPath();
-    ctx.arc(tx + 4, VH * 0.6 - th, 12, 0, 6.28);
-    ctx.fill();
-
-    // Lighter canopy top for dappled light
-    ctx.fillStyle = 'rgba(50, 120, 80, 0.4)';
-    ctx.beginPath();
-    ctx.arc(tx + 4, VH * 0.6 - th - 2, 8, 0, 6.28);
-    ctx.fill();
-
-    // Tree trunk
-    ctx.fillStyle = '#1a3a1a';
-    ctx.fillRect(tx + 2, VH * 0.6 - th + 10, 4, th - 10);
-  }
+  // Center dot
+  ctx.fillStyle = 'rgba(255, 200, 100, 1)';
+  ctx.beginPath();
+  ctx.arc(clockX, clockY, 2, 0, 6.28);
+  ctx.fill();
 }
 
 function drawPlatform(p){
@@ -2394,77 +2421,77 @@ function drawPlatform(p){
   const rx=px-camX, ry=py;
   if(rx+pw<0||rx>VW) return;
 
-  // Grass platform (ph === 32) - natural earth with grass on top
+  // Office carpet floor (ph === 32) - dark gray carpet with baseboard molding
   if(ph===32){
-    // Main earth body with rounded bottom
-    const earthGrad = ctx.createLinearGradient(0, ry, 0, ry + ph);
-    earthGrad.addColorStop(0, '#5a7a3a');
-    earthGrad.addColorStop(0.5, '#4a6a2a');
-    earthGrad.addColorStop(1, '#3a5a1a');
-    ctx.fillStyle = earthGrad;
+    // Main carpet body with gray gradient
+    const carpetGrad = ctx.createLinearGradient(0, ry, 0, ry + ph);
+    carpetGrad.addColorStop(0, '#5a5a6a');
+    carpetGrad.addColorStop(0.5, '#4a4a5a');
+    carpetGrad.addColorStop(1, '#3a3a4a');
+    ctx.fillStyle = carpetGrad;
     ctx.fillRect(rx, ry, pw, ph);
 
     // Soft shadow on bottom edge
-    ctx.fillStyle = 'rgba(20, 20, 10, 0.3)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.fillRect(rx, ry + ph - 5, pw, 5);
 
-    // Grass layer with organic texture
-    const grassGrad = ctx.createLinearGradient(0, ry - 2, 0, ry + 6);
-    grassGrad.addColorStop(0, '#8acd5a');
-    grassGrad.addColorStop(0.5, '#7abc4a');
-    grassGrad.addColorStop(1, '#6aaa3a');
-    ctx.fillStyle = grassGrad;
-    ctx.fillRect(rx, ry - 2, pw, 8);
+    // Baseboard molding strip at top (light brown/tan line, ~3px)
+    ctx.fillStyle = '#8a7060';
+    ctx.fillRect(rx, ry - 3, pw, 3);
 
-    // Grass blades with organic curves
-    ctx.fillStyle = '#9add6a';
-    for(let i = 2; i < pw; i += 6){
-      const x1 = rx + i;
-      const x2 = rx + i + 1;
-      const x3 = rx + i + 2;
-      // Curved grass blade
-      ctx.beginPath();
-      ctx.moveTo(x1, ry + 2);
-      ctx.quadraticCurveTo(x2 - 0.5, ry - 2, x2, ry - 5);
-      ctx.lineTo(x3, ry - 4);
-      ctx.quadraticCurveTo(x2 + 0.5, ry - 1, x1 + 1, ry + 2);
-      ctx.fill();
+    // Carpet texture specks - tiny random dots in varying gray shades
+    ctx.fillStyle = 'rgba(100, 100, 110, 0.4)';
+    for(let i = 0; i < pw; i += 8) {
+      const sx1 = rx + i;
+      const sy1 = ry + Math.random() * ph;
+      ctx.fillRect(sx1, sy1, 1, 1);
+
+      const sx2 = rx + i + 4;
+      const sy2 = ry + Math.random() * ph;
+      ctx.fillRect(sx2, sy2, 1, 1);
     }
 
-    // Highlight on grass top
-    ctx.fillStyle = 'rgba(255, 255, 200, 0.2)';
-    ctx.fillRect(rx, ry - 2, pw, 2);
+    // Additional lighter texture specks
+    ctx.fillStyle = 'rgba(80, 80, 90, 0.3)';
+    for(let i = 2; i < pw; i += 12) {
+      const sx = rx + i;
+      const sy = ry + Math.random() * ph;
+      ctx.fillRect(sx, sy, 1, 1);
+    }
+
+    // Subtle top highlight
+    ctx.fillStyle = 'rgba(200, 200, 200, 0.1)';
+    ctx.fillRect(rx, ry - 1, pw, 2);
   } else {
-    // Stone/metal platform - angular industrial look
-    const platformGrad = ctx.createLinearGradient(0, ry, 0, ry + ph);
-    platformGrad.addColorStop(0, '#8a8a8a');
-    platformGrad.addColorStop(0.5, '#6a6a6a');
-    platformGrad.addColorStop(1, '#4a4a4a');
-    ctx.fillStyle = platformGrad;
+    // Office desk/shelf (warm wood-tone) - floating platforms
+    const deskGrad = ctx.createLinearGradient(0, ry, 0, ry + ph);
+    deskGrad.addColorStop(0, '#b8956a');
+    deskGrad.addColorStop(0.5, '#9a7a5a');
+    deskGrad.addColorStop(1, '#7a6040');
+    ctx.fillStyle = deskGrad;
     ctx.fillRect(rx, ry, pw, ph);
 
-    // Top edge highlight
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    // Polished surface highlight at top (bright thin line)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
     ctx.fillRect(rx, ry, pw, 2);
 
-    // Bottom edge shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    ctx.fillRect(rx, ry + ph - 3, pw, 3);
+    // Bottom shadow for depth
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.fillRect(rx, ry + ph - 2, pw, 2);
 
-    // Vertical panel lines for industrial feel
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.lineWidth = 1;
-    for(let bx = 0; bx < pw; bx += 20){
+    // Thin lip/edge at the top
+    ctx.fillStyle = '#6a5030';
+    ctx.fillRect(rx, ry - 1, pw, 1);
+
+    // Drawer handle shapes - small dark rounded rectangles every ~25px
+    ctx.fillStyle = '#3a2a20';
+    for(let hx = 15; hx < pw; hx += 25) {
+      const handleX = rx + hx;
+      const handleY = ry + Math.floor(ph / 2) - 2;
+      // Small rounded rectangle for handle
       ctx.beginPath();
-      ctx.moveTo(rx + bx, ry);
-      ctx.lineTo(rx + bx, ry + ph);
-      ctx.stroke();
-    }
-
-    // Subtle texture overlay
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-    for(let ny = 0; ny < ph; ny += 5) {
-      ctx.fillRect(rx, ry + ny, pw, 1);
+      ctx.roundRect(handleX - 4, handleY, 8, 4, 1);
+      ctx.fill();
     }
   }
 }
@@ -2482,38 +2509,60 @@ function drawCoin(c, now){
   ctx.translate(cx, cy+bob);
   ctx.rotate(rotation);
 
-  // Outer glow halo - painterly
+  // Outer glow halo - warm brown glow for coffee
   const glowGrad = ctx.createRadialGradient(0, 0, 3, 0, 0, 13);
-  glowGrad.addColorStop(0, `rgba(255,240,120,${0.4 + pulse*0.3})`);
-  glowGrad.addColorStop(0.5, `rgba(255,200,50,${0.2 + pulse*0.15})`);
-  glowGrad.addColorStop(1, `rgba(255,150,0,0)`);
+  glowGrad.addColorStop(0, `rgba(210,160,80,${0.4 + pulse*0.3})`);
+  glowGrad.addColorStop(0.5, `rgba(200,140,60,${0.2 + pulse*0.15})`);
+  glowGrad.addColorStop(1, `rgba(180,100,40,0)`);
   ctx.fillStyle = glowGrad;
   ctx.beginPath(); ctx.arc(0, 0, 13, 0, 6.28); ctx.fill();
 
-  // Main coin body with rich gradient
-  const coinGrad = ctx.createRadialGradient(-2, -2, 1, 0, 0, 8);
-  coinGrad.addColorStop(0, '#ffd700');
-  coinGrad.addColorStop(0.4, '#ffc000');
-  coinGrad.addColorStop(0.7, '#d4a500');
-  coinGrad.addColorStop(1, '#a67c00');
-  ctx.fillStyle = coinGrad;
-  ctx.beginPath(); ctx.arc(0, 0, 8*scale, 0, 6.28); ctx.fill();
+  // Coffee cup body - small trapezoid (tan/white)
+  ctx.fillStyle = '#f5f5dc';
+  ctx.beginPath();
+  ctx.moveTo(-4, -6);  // top left
+  ctx.lineTo(4, -6);   // top right
+  ctx.lineTo(5, 2);    // bottom right (wider at base)
+  ctx.lineTo(-5, 2);   // bottom left (wider at base)
+  ctx.closePath();
+  ctx.fill();
 
-  // Inner soft reflection/glow
-  const innerGlow = ctx.createRadialGradient(-3, -4, 0.5, -3, -4, 6);
-  innerGlow.addColorStop(0, `rgba(255,255,200,${0.6*scale})`);
-  innerGlow.addColorStop(1, `rgba(255,240,150,${0.1*scale})`);
-  ctx.fillStyle = innerGlow;
-  ctx.beginPath(); ctx.arc(-3, -4, 6*scale, 0, 6.28); ctx.fill();
+  // Coffee inside (dark brown)
+  ctx.fillStyle = '#8b6f47';
+  ctx.beginPath();
+  ctx.moveTo(-3.5, -4);
+  ctx.lineTo(3.5, -4);
+  ctx.lineTo(4.5, 1.5);
+  ctx.lineTo(-4.5, 1.5);
+  ctx.closePath();
+  ctx.fill();
 
-  // Dollar sign with soft shadow
-  ctx.fillStyle = 'rgba(100,60,0,0.4)';
-  ctx.font = 'bold 8px monospace';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('$', 1, 1);
-  ctx.fillStyle = '#8b6914';
-  ctx.fillText('$', 0, 0);
+  // Cup handle (small arc on the right side)
+  ctx.strokeStyle = '#d4a574';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.arc(6, -1, 2.5, -1.2, 1.2, false);
+  ctx.stroke();
+
+  // Steam wisps (wavy lines above the cup)
+  ctx.strokeStyle = 'rgba(200,180,160,0.6)';
+  ctx.lineWidth = 0.8;
+  ctx.lineCap = 'round';
+  // Left steam wisp
+  ctx.beginPath();
+  ctx.moveTo(-2, -7);
+  ctx.quadraticCurveTo(-2.5, -9, -2, -11);
+  ctx.stroke();
+  // Middle steam wisp
+  ctx.beginPath();
+  ctx.moveTo(0, -7);
+  ctx.quadraticCurveTo(0.3, -9, 0, -11);
+  ctx.stroke();
+  // Right steam wisp
+  ctx.beginPath();
+  ctx.moveTo(2, -7);
+  ctx.quadraticCurveTo(2.5, -9, 2, -11);
+  ctx.stroke();
 
   ctx.restore();
 }
@@ -2548,97 +2597,117 @@ function drawPalmTree(pt, now) {
   ctx.ellipse(px, baseY - 1, 22, 4, 0, 0, 6.28);
   ctx.fill();
 
-  // === TRUNK with organic gradient ===
-  const trunkH = 28;
-  const topY = baseY - trunkH + bob;
+  // === OFFICE POWER-UP ITEM ===
+  const itemH = 24;
+  const topY = baseY - itemH + bob;
 
-  // Draw trunk segments with soft edges
-  for (let i = 0; i < 7; i++) {
-    const t = i / 7;
-    const segY = baseY - trunkH * t + bob * (1 - t);
-    const curve = Math.sin(t * 2) * 2;
-
-    // Trunk gradient
-    const trunkGrad = ctx.createLinearGradient(0, segY - trunkH / 7, 0, segY);
-    trunkGrad.addColorStop(0, '#9a6a3e');
-    trunkGrad.addColorStop(0.5, '#7a5a2e');
-    trunkGrad.addColorStop(1, '#5a4a1e');
-    ctx.fillStyle = trunkGrad;
-
-    // Slightly rounded trunk segment
+  if (pt.type === 'shield') {
+    // Hard hat (yellow safety helmet)
+    // Dome of the helmet
+    const helmetGrad = ctx.createRadialGradient(px, topY - 2, 2, px, topY - 2, 10);
+    helmetGrad.addColorStop(0, '#ffeb3b');
+    helmetGrad.addColorStop(0.7, '#ffca28');
+    helmetGrad.addColorStop(1, '#fbc02d');
+    ctx.fillStyle = helmetGrad;
     ctx.beginPath();
-    ctx.moveTo(px - 2 + curve, segY - trunkH / 7);
-    ctx.quadraticCurveTo(px - 2 + curve, segY - trunkH / 14, px - 1.5 + curve, segY);
-    ctx.quadraticCurveTo(px + 1.5 + curve, segY, px + 2 + curve, segY - trunkH / 14);
-    ctx.quadraticCurveTo(px + 2 + curve, segY - trunkH / 7, px - 2 + curve, segY - trunkH / 7);
+    ctx.arc(px, topY - 2, 8, Math.PI, 0, false);
     ctx.fill();
+
+    // Brim of the helmet
+    ctx.fillStyle = '#ffa500';
+    ctx.fillRect(px - 10, topY + 4, 20, 3);
+    ctx.fillStyle = '#ff8c00';
+    ctx.fillRect(px - 10, topY + 6, 20, 1.5);
+
+    // Highlight on dome
+    ctx.fillStyle = 'rgba(255, 255, 200, 0.6)';
+    ctx.beginPath();
+    ctx.arc(px - 2, topY - 5, 2, 0, 6.28);
+    ctx.fill();
+
+  } else if (pt.type === 'speed') {
+    // Energy drink can (tall thin rectangle, red/blue colors)
+    const canGrad = ctx.createLinearGradient(px - 3, topY, px + 3, topY);
+    canGrad.addColorStop(0, '#1976d2');
+    canGrad.addColorStop(0.5, '#d32f2f');
+    canGrad.addColorStop(1, '#1976d2');
+    ctx.fillStyle = canGrad;
+    ctx.fillRect(px - 3, topY, 6, 18);
+
+    // Can top/rim
+    ctx.fillStyle = '#666666';
+    ctx.fillRect(px - 3, topY - 2, 6, 2);
+
+    // Highlight line
+    ctx.strokeStyle = 'rgba(255,255,200,0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px - 2, topY);
+    ctx.lineTo(px - 2, topY + 16);
+    ctx.stroke();
+
+    // Lightning bolt pattern (speed indicator)
+    ctx.strokeStyle = '#ffeb3b';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(px + 0.5, topY + 4);
+    ctx.lineTo(px - 1, topY + 8);
+    ctx.lineTo(px + 0.5, topY + 8);
+    ctx.lineTo(px - 1, topY + 12);
+    ctx.stroke();
+
+  } else if (pt.type === 'magnet') {
+    // Blueprint roll (blue rolled paper tube with white lines)
+    // Main rolled paper cylinder
+    const rollGrad = ctx.createLinearGradient(px - 4, topY, px + 4, topY);
+    rollGrad.addColorStop(0, '#0d47a1');
+    rollGrad.addColorStop(0.5, '#1565c0');
+    rollGrad.addColorStop(1, '#0d47a1');
+    ctx.fillStyle = rollGrad;
+    ctx.beginPath();
+    ctx.ellipse(px, topY, 4, 5, 0, 0, 6.28);
+    ctx.fill();
+
+    // End cap cylinders (rolled edges)
+    ctx.fillStyle = '#1976d2';
+    ctx.beginPath();
+    ctx.arc(px, topY - 5, 2, 0, 6.28);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(px, topY + 5, 2, 0, 6.28);
+    ctx.fill();
+
+    // Blueprint lines (grid pattern on the roll)
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 0.8;
+    // Horizontal lines
+    ctx.beginPath();
+    ctx.moveTo(px - 3, topY - 2);
+    ctx.lineTo(px + 3, topY - 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(px - 3, topY);
+    ctx.lineTo(px + 3, topY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(px - 3, topY + 2);
+    ctx.lineTo(px + 3, topY + 2);
+    ctx.stroke();
+
+    // Vertical lines
+    ctx.beginPath();
+    ctx.moveTo(px - 2, topY - 4);
+    ctx.lineTo(px - 2, topY + 4);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(px, topY - 5);
+    ctx.lineTo(px, topY + 5);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(px + 2, topY - 4);
+    ctx.lineTo(px + 2, topY + 4);
+    ctx.stroke();
   }
-
-  // Trunk highlight with soft glow
-  const trunkHighlight = ctx.createLinearGradient(px + 0.5, topY, px + 0.5, topY + trunkH);
-  trunkHighlight.addColorStop(0, 'rgba(255, 200, 120, 0.3)');
-  trunkHighlight.addColorStop(1, 'rgba(255, 180, 100, 0)');
-  ctx.fillStyle = trunkHighlight;
-  ctx.fillRect(px + 0.5, topY, 1.5, trunkH);
-
-  // === LUSH PALM FRONDS with dappled light ===
-  const sway = Math.sin(now * 0.002 + pt.x) * 0.08;
-  const frondData = [
-    { angle: -2.2 + sway, len: 17, color: '#2a7a1a' },
-    { angle: -1.0 + sway, len: 14, color: '#3a8a2a' },
-    { angle: 0 + sway, len: 13, color: '#4a9a3a' },
-    { angle: 1.0 + sway, len: 14, color: '#3a8a2a' },
-    { angle: 2.2 + sway, len: 17, color: '#2a7a1a' },
-  ];
-
-  frondData.forEach((fr, fi) => {
-    const steps = 14;
-    for (let s = 0; s < steps; s++) {
-      const t = s / steps;
-      const droop = t * t * 12;
-      const fx = px + Math.sin(fr.angle) * fr.len * t;
-      const fy = topY + 4 - fr.len * t * (1 - t * 0.35) + droop;
-      const lw = (1 - t) * 3.2 + 0.6;
-
-      // Main leaf spine with gradient
-      const leafGrad = ctx.createLinearGradient(fx - lw / 2, fy - lw / 2, fx + lw / 2, fy + lw / 2);
-      leafGrad.addColorStop(0, fr.color);
-      leafGrad.addColorStop(0.5, '#5aaa4a');
-      leafGrad.addColorStop(1, '#3a8a2a');
-      ctx.fillStyle = leafGrad;
-      ctx.fillRect(fx - lw / 2, fy - 0.5, lw, 1.5);
-
-      // Leaflet highlights (dappled light effect)
-      if (s > 1 && s < steps - 1) {
-        ctx.fillStyle = 'rgba(200, 255, 150, 0.35)';
-        ctx.fillRect(fx - lw - 1.2, fy - 0.8, lw * 0.9, 1);
-        ctx.fillRect(fx + lw * 0.3, fy + 0.5, lw * 0.8, 1);
-      }
-    }
-  });
-
-  // Coconuts with realistic shading
-  const coconutGrad1 = ctx.createRadialGradient(px - 3, topY + 3, 1, px - 3, topY + 4, 2.5);
-  coconutGrad1.addColorStop(0, '#b8941a');
-  coconutGrad1.addColorStop(1, '#7a5a0a');
-  ctx.fillStyle = coconutGrad1;
-  ctx.beginPath();
-  ctx.arc(px - 3, topY + 4, 2.5, 0, 6.28);
-  ctx.fill();
-
-  const coconutGrad2 = ctx.createRadialGradient(px + 2.5, topY + 4, 1, px + 2.5, topY + 5, 2.5);
-  coconutGrad2.addColorStop(0, '#a8841a');
-  coconutGrad2.addColorStop(1, '#6a4a0a');
-  ctx.fillStyle = coconutGrad2;
-  ctx.beginPath();
-  ctx.arc(px + 2.5, topY + 5, 2.5, 0, 6.28);
-  ctx.fill();
-
-  // Coconut highlight
-  ctx.fillStyle = 'rgba(255, 200, 100, 0.4)';
-  ctx.beginPath();
-  ctx.arc(px - 3, topY + 2.5, 1.2, 0, 6.28);
-  ctx.fill();
 
   // Type label with soft shadow and glow
   ctx.font = 'bold 7px monospace';
@@ -2869,7 +2938,7 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
   };
   // ─────────────────────────────────────────────────────────────────────
 
-  if (cls === 'archer') {
+  if (cls === 'architect') {
     shadow();
     boots(0.05, 0.55, 0.72, 0.4, 0.28, '#8b5513');
 
@@ -2924,7 +2993,7 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
     }
     ctx.globalAlpha = 1;
 
-  } else if (cls === 'knight') {
+  } else if (cls === 'engineer') {
     shadow();
     boots(0.08, 0.56, 0.72, 0.36, 0.28, '#666');
 
@@ -2979,7 +3048,7 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
     ctx.beginPath(); ctx.moveTo(x+pw*0.875, y+ph*0.4+bob); ctx.lineTo(x+pw*0.875, y+ph*0.55+bob); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x+pw*0.8, y+ph*0.475+bob); ctx.lineTo(x+pw*0.95, y+ph*0.475+bob); ctx.stroke();
 
-  } else if (cls === 'rogue') {
+  } else if (cls === 'draftsman') {
     shadow();
 
     // Stealth body with dark gradient
@@ -3045,7 +3114,7 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
     ctx.beginPath(); ctx.ellipse(x+pw*0.89, y+ph*0.56+bob, pw*0.08, ph*0.06, 0, 0, 6.28); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 0.4; ctx.stroke();
 
-  } else if (cls === 'warrior') {
+  } else if (cls === 'inspector') {
     shadow();
     boots(0.08, 0.56, 0.72, 0.36, 0.28, '#8b5513');
 
@@ -3138,7 +3207,7 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
     ctx.beginPath(); ctx.ellipse(x+pw*0.79, y+ph*0.58+bob, pw*0.05, ph*0.06, 0, 0, 6.28); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 0.4; ctx.stroke();
 
-  } else if (cls === 'ninja') {
+  } else if (cls === 'designer') {
     shadow();
 
     // Ninja feet in dark gradient
@@ -3216,7 +3285,7 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
     ctx.beginPath(); ctx.arc(0, 0, pw*0.04, 0, 6.28); ctx.stroke();
     ctx.restore();
 
-  } else if (cls === 'swordsman') {
+  } else if (cls === 'surveyor') {
     shadow();
     boots(0.08, 0.56, 0.72, 0.36, 0.28, '#8b5513');
 
@@ -3302,7 +3371,7 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
     ctx.beginPath(); ctx.ellipse(x+pw*0.84, y+ph*0.61+bob, pw*0.055, ph*0.06, 0, 0, 6.28); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 0.5; ctx.stroke();
 
-  } else if (cls === 'mage') {
+  } else if (cls === 'planner') {
     shadow();
 
     // Pointed hat with gradient (classic wizard hat shape)
@@ -3392,7 +3461,7 @@ function drawCharSprite(ctx, cx, cy, w, h, data, now, opts) {
       ctx.beginPath(); ctx.arc(ppx, ppy, pw*0.05, 0, 6.28); ctx.fill();
     }
 
-  } else if (cls === 'ranger') {
+  } else if (cls === 'estimator') {
     shadow();
     boots(0.08, 0.56, 0.72, 0.36, 0.28, '#8b5513');
 
@@ -3748,7 +3817,7 @@ function drawBoss(now) {
   ctx.shadowBlur = 6;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
-  ctx.fillText('CHARLA', sx, hpBarY - 2);
+  ctx.fillText('BLDG INSPECTOR', sx, hpBarY - 2);
   ctx.shadowColor = 'transparent';
 
   // Flash white when invulnerable
@@ -3756,177 +3825,127 @@ function drawBoss(now) {
   const flashOn = Math.floor(boss.invTimer * 20) % 2 === 0;
   ctx.globalAlpha = isFlashing && !flashOn ? 0.5 : 1;
 
-  // Draw dragon body with gradient scales
-  const bodyGrad = ctx.createRadialGradient(sx, sy - 15, 5, sx, sy - 15, 45);
-  bodyGrad.addColorStop(0, isFlashing && flashOn ? '#ffffff' : '#8a5a9a');
-  bodyGrad.addColorStop(0.5, isFlashing && flashOn ? '#ffffcc' : '#663399');
-  bodyGrad.addColorStop(1, isFlashing && flashOn ? '#ffff99' : '#3a2a5a');
+  // Draw office printer body (boxy gray with metallic gradient)
+  const printerBodyGrad = ctx.createLinearGradient(sx - 30, sy - 20, sx + 30, sy + 10);
+  printerBodyGrad.addColorStop(0, isFlashing && flashOn ? '#ffffff' : '#b8b8b8');
+  printerBodyGrad.addColorStop(0.5, isFlashing && flashOn ? '#ffffcc' : '#888888');
+  printerBodyGrad.addColorStop(1, isFlashing && flashOn ? '#ffff99' : '#5a5a5a');
 
-  ctx.fillStyle = bodyGrad;
+  // Main printer body (rounded rectangle)
+  ctx.fillStyle = printerBodyGrad;
   ctx.beginPath();
-  ctx.ellipse(sx, sy - 15, 35, 25, 0, 0, Math.PI * 2);
+  ctx.roundRect(sx - 28, sy - 18, 56, 36, 4);
   ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 1.5; ctx.stroke();
 
-  // Scale detail with lighter shades
-  const scaleColor = isFlashing && flashOn ? '#ffff99' : '#8a7aaa';
-  ctx.strokeStyle = scaleColor; ctx.lineWidth = 0.8;
-  for (let i = -2; i <= 2; i++) {
-    for (let j = -1; j <= 1; j++) {
-      const px = sx + i * 16;
-      const py = sy - 15 + j * 12;
-      ctx.beginPath(); ctx.ellipse(px, py, 5, 3, 0.3, 0, 6.28); ctx.stroke();
-    }
+  // Paper tray on top with paper sheets sticking out
+  ctx.fillStyle = '#9a9a9a';
+  ctx.fillRect(sx - 24, sy - 24, 48, 6);
+  // Paper sheets sticking out
+  ctx.strokeStyle = '#e8e8e8';
+  ctx.lineWidth = 1.5;
+  ctx.lineCap = 'butt';
+  for (let p = -8; p <= 8; p += 5) {
+    ctx.beginPath();
+    ctx.moveTo(sx + p, sy - 24);
+    ctx.lineTo(sx + p - 2, sy - 30 + Math.sin(now * 0.003 + p) * 1);
+    ctx.stroke();
   }
 
-  // Neck with gradient
-  const neckGrad = ctx.createLinearGradient(sx+15, sy - 25, sx+15, sy - 11);
-  neckGrad.addColorStop(0, '#7a5a8a');
-  neckGrad.addColorStop(1, '#5a3a7a');
-  ctx.fillStyle = neckGrad;
-  ctx.beginPath();
-  ctx.ellipse(sx + 15, sy - 18, 12, 14, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1; ctx.stroke();
-
-  // Head with gradient shading
-  const headGrad = ctx.createRadialGradient(sx + 30, sy - 22, 5, sx + 30, sy - 22, 20);
-  headGrad.addColorStop(0, isFlashing && flashOn ? '#ffff99' : '#8a6a9a');
-  headGrad.addColorStop(0.6, isFlashing && flashOn ? '#ffffcc' : '#663399');
-  headGrad.addColorStop(1, isFlashing && flashOn ? '#ffff66' : '#4a2a6a');
-  ctx.fillStyle = headGrad;
-  ctx.beginPath();
-  ctx.ellipse(sx + 30, sy - 20, 18, 16, 0.3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.2; ctx.stroke();
-
-  // Eyes with glowing lens flare effect
-  const eyeColor = isFlashing && flashOn ? '#ffff00' : '#ffdd00';
-
-  // Eye 1 with glow halo
-  const eyeGlow1 = ctx.createRadialGradient(sx + 36, sy - 24, 0, sx + 36, sy - 24, 7);
-  eyeGlow1.addColorStop(0, 'rgba(255, 220, 0, 0.8)');
-  eyeGlow1.addColorStop(0.4, 'rgba(255, 200, 0, 0.3)');
-  eyeGlow1.addColorStop(1, 'rgba(255, 180, 0, 0)');
+  // Angry red LED eyes (top front of printer)
+  const eyeGlow1 = ctx.createRadialGradient(sx - 10, sy - 12, 0, sx - 10, sy - 12, 6);
+  eyeGlow1.addColorStop(0, 'rgba(255, 50, 50, 0.9)');
+  eyeGlow1.addColorStop(0.5, 'rgba(255, 0, 0, 0.4)');
+  eyeGlow1.addColorStop(1, 'rgba(255, 0, 0, 0)');
   ctx.fillStyle = eyeGlow1;
   ctx.beginPath();
-  ctx.arc(sx + 36, sy - 24, 7, 0, Math.PI * 2);
+  ctx.arc(sx - 10, sy - 12, 6, 0, Math.PI * 2);
   ctx.fill();
 
-  // Eye 1 main
-  ctx.fillStyle = eyeColor;
+  ctx.fillStyle = '#ff3333';
   ctx.beginPath();
-  ctx.arc(sx + 36, sy - 24, 4, 0, Math.PI * 2);
+  ctx.arc(sx - 10, sy - 12, 3.5, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#000';
+  ctx.fillStyle = '#ff0000';
   ctx.beginPath();
-  ctx.arc(sx + 36, sy - 24, 2.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Eye 1 shine highlight
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.beginPath();
-  ctx.arc(sx + 34.5, sy - 25.5, 1, 0, Math.PI * 2);
+  ctx.arc(sx - 10, sy - 12, 2, 0, Math.PI * 2);
   ctx.fill();
 
-  // Eye 2 with glow halo
-  const eyeGlow2 = ctx.createRadialGradient(sx + 38, sy - 12, 0, sx + 38, sy - 12, 6);
-  eyeGlow2.addColorStop(0, 'rgba(255, 220, 0, 0.7)');
-  eyeGlow2.addColorStop(0.4, 'rgba(255, 200, 0, 0.25)');
-  eyeGlow2.addColorStop(1, 'rgba(255, 180, 0, 0)');
+  // Second angry red LED eye
+  const eyeGlow2 = ctx.createRadialGradient(sx + 10, sy - 12, 0, sx + 10, sy - 12, 6);
+  eyeGlow2.addColorStop(0, 'rgba(255, 50, 50, 0.9)');
+  eyeGlow2.addColorStop(0.5, 'rgba(255, 0, 0, 0.4)');
+  eyeGlow2.addColorStop(1, 'rgba(255, 0, 0, 0)');
   ctx.fillStyle = eyeGlow2;
   ctx.beginPath();
-  ctx.arc(sx + 38, sy - 12, 6, 0, Math.PI * 2);
+  ctx.arc(sx + 10, sy - 12, 6, 0, Math.PI * 2);
   ctx.fill();
 
-  // Eye 2 main
-  ctx.fillStyle = eyeColor;
+  ctx.fillStyle = '#ff3333';
   ctx.beginPath();
-  ctx.arc(sx + 38, sy - 12, 3.5, 0, Math.PI * 2);
+  ctx.arc(sx + 10, sy - 12, 3.5, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = '#000';
+  ctx.fillStyle = '#ff0000';
   ctx.beginPath();
-  ctx.arc(sx + 38, sy - 12, 2, 0, Math.PI * 2);
+  ctx.arc(sx + 10, sy - 12, 2, 0, Math.PI * 2);
   ctx.fill();
 
-  // Eye 2 shine highlight
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.beginPath();
-  ctx.arc(sx + 36.8, sy - 13.2, 0.8, 0, Math.PI * 2);
-  ctx.fill();
+  // Highlight on top of printer
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillRect(sx - 26, sy - 16, 52, 3);
 
-  // Wings (flapping motion) with translucent effect and vein detail
-  const wingAngle = Math.sin(now / 300) * 0.3;
-
-  // Left wing
+  // Paper output trays on the sides (like wings)
+  // Left output tray
   ctx.save();
-  ctx.translate(sx - 5, sy - 10);
-  ctx.rotate(-0.5 + wingAngle);
-  const leftWingGrad = ctx.createLinearGradient(-20, 0, 0, 0);
-  leftWingGrad.addColorStop(0, 'rgba(120, 80, 150, 0.4)');
-  leftWingGrad.addColorStop(0.5, 'rgba(100, 60, 140, 0.5)');
-  leftWingGrad.addColorStop(1, 'rgba(80, 40, 120, 0.6)');
-  ctx.fillStyle = leftWingGrad;
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 20, 12, 0, 0, Math.PI * 2);
-  ctx.fill();
-  // Wing veins
-  ctx.strokeStyle = 'rgba(150, 100, 180, 0.3)'; ctx.lineWidth = 0.8;
-  for (let v = -15; v <= 15; v += 8) {
-    ctx.beginPath(); ctx.moveTo(v, -8); ctx.quadraticCurveTo(v+2, 0, v-2, 8); ctx.stroke();
-  }
-  ctx.restore();
-
-  // Right wing
-  ctx.save();
-  ctx.translate(sx + 5, sy - 10);
-  ctx.rotate(0.5 - wingAngle);
-  const rightWingGrad = ctx.createLinearGradient(0, 0, 20, 0);
-  rightWingGrad.addColorStop(0, 'rgba(120, 80, 150, 0.6)');
-  rightWingGrad.addColorStop(0.5, 'rgba(100, 60, 140, 0.5)');
-  rightWingGrad.addColorStop(1, 'rgba(80, 40, 120, 0.4)');
-  ctx.fillStyle = rightWingGrad;
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 20, 12, 0, 0, Math.PI * 2);
-  ctx.fill();
-  // Wing veins
-  ctx.strokeStyle = 'rgba(150, 100, 180, 0.3)'; ctx.lineWidth = 0.8;
-  for (let v = -15; v <= 15; v += 8) {
-    ctx.beginPath(); ctx.moveTo(v, -8); ctx.quadraticCurveTo(v-2, 0, v+2, 8); ctx.stroke();
-  }
-  ctx.restore();
-
-  // Spiky tail with gradient
-  const bodyColor = isFlashing && flashOn ? '#ffff99' : '#663399';
-  ctx.strokeStyle = bodyColor;
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(sx - 35, sy);
-  const tailPoints = 4;
-  for (let i = 1; i <= tailPoints; i++) {
-    const tx = sx - 35 - i * 8;
-    const ty = sy + Math.sin(now / 400 + i) * 6 + (i % 2) * 8;
-    ctx.lineTo(tx, ty);
-  }
-  ctx.stroke();
-
-  // Tail spikes with gradient shading
-  for (let i = 1; i <= tailPoints; i++) {
-    const tx = sx - 35 - i * 8;
-    const ty = sy + Math.sin(now / 400 + i) * 6 + (i % 2) * 8;
-    const spikeGrad = ctx.createLinearGradient(tx, ty, tx - 4, ty - 6);
-    spikeGrad.addColorStop(0, '#9a7aaa');
-    spikeGrad.addColorStop(1, '#5a3a7a');
-    ctx.fillStyle = spikeGrad;
+  ctx.translate(sx - 30, sy - 2);
+  ctx.rotate(-0.4);
+  ctx.fillStyle = '#c0c0c0';
+  ctx.fillRect(0, 0, 16, 8);
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1; ctx.stroke();
+  // Paper in tray
+  ctx.strokeStyle = '#e8e8e8';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
     ctx.beginPath();
-    ctx.moveTo(tx, ty);
-    ctx.lineTo(tx - 4, ty - 6);
-    ctx.lineTo(tx - 2, ty);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 0.6; ctx.stroke();
+    ctx.moveTo(2 + i * 3, 1);
+    ctx.lineTo(2 + i * 3, 7);
+    ctx.stroke();
   }
+  ctx.restore();
+
+  // Right output tray
+  ctx.save();
+  ctx.translate(sx + 30, sy - 2);
+  ctx.rotate(0.4);
+  ctx.fillStyle = '#c0c0c0';
+  ctx.fillRect(-16, 0, 16, 8);
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1; ctx.stroke();
+  // Paper in tray
+  ctx.strokeStyle = '#e8e8e8';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-14 + i * 3, 1);
+    ctx.lineTo(-14 + i * 3, 7);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Front paper access door/slot
+  ctx.fillStyle = '#3a3a3a';
+  ctx.fillRect(sx - 20, sy, 40, 12);
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(sx - 20, sy, 40, 12);
+
+  // Moving paper in front slot (indicates jam or activity)
+  const paperPos = (now / 100) % 40;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(sx - 20 + paperPos, sy + 4);
+  ctx.lineTo(sx - 20 + paperPos, sy + 8);
+  ctx.stroke();
 
   // Telegraph visuals
   if (boss.telegraphing) {
@@ -3993,87 +4012,83 @@ function drawFlag(now){
   const fx=FLAG.x-camX, fy=FLAG.y;
   if(fx<-20||fx>VW+20) return;
 
-  // Wooden pole with grain and shadow
-  const poleGrad = ctx.createLinearGradient(fx - 2, fy, fx + 2, fy + (GROUND_Y - fy));
-  poleGrad.addColorStop(0, '#b8a080');
-  poleGrad.addColorStop(0.5, '#9a8a6a');
-  poleGrad.addColorStop(1, '#7a6a4a');
-  ctx.fillStyle = poleGrad;
-  ctx.fillRect(fx - 2, fy, 4, GROUND_Y - fy);
+  // EXIT door frame (brown/gray)
+  const frameGrad = ctx.createLinearGradient(fx - 12, fy, fx + 12, fy);
+  frameGrad.addColorStop(0, '#8a7a6a');
+  frameGrad.addColorStop(0.5, '#9a8a7a');
+  frameGrad.addColorStop(1, '#7a6a5a');
+  ctx.fillStyle = frameGrad;
+  ctx.strokeStyle = '#4a4a4a';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(fx - 12, fy + 8, 24, 32);
 
-  // Pole highlight
-  ctx.fillStyle = 'rgba(255, 240, 200, 0.3)';
-  ctx.fillRect(fx - 1, fy, 1.5, GROUND_Y - fy);
+  // Door outline/frame fill with depth
+  ctx.fillStyle = '#6a5a4a';
+  ctx.fillRect(fx - 11, fy + 9, 22, 30);
 
-  // Pole shadow
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  ctx.fillRect(fx + 1, fy, 1, GROUND_Y - fy);
-
-  // Waving flag with soft edges and gradient
-  const wave = Math.sin(now * 0.008) * 5;
-  const segmentCount = 6;
-
-  for (let i = 0; i < segmentCount; i++) {
-    const t = i / segmentCount;
-    const nextT = (i + 1) / segmentCount;
-
-    // Offset and wave motion
-    const y1 = fy + t * 20 + Math.sin(now * 0.008 + t * 2.5) * 2.5;
-    const y2 = fy + nextT * 20 + Math.sin(now * 0.008 + nextT * 2.5) * 2.5;
-    const x2 = fx + 2 + (28 * t) + wave * t * 0.8;
-    const x3 = fx + 2 + (28 * nextT) + wave * nextT * 0.8;
-
-    // Flag color gradient (golden with depth)
-    const flagGrad = ctx.createLinearGradient(fx + 2, fy, x2, y1);
-    flagGrad.addColorStop(0, '#ffd855');
-    flagGrad.addColorStop(0.6, '#f5c842');
-    flagGrad.addColorStop(1, '#e8b840');
-
-    ctx.fillStyle = flagGrad;
-    ctx.beginPath();
-    ctx.moveTo(fx + 2, y1);
-    ctx.lineTo(x2, y1);
-    ctx.lineTo(x3, y2);
-    ctx.lineTo(fx + 2, y2);
-    ctx.closePath();
-    ctx.fill();
-
-    // Soft shadow on flag edge
-    ctx.fillStyle = `rgba(0, 0, 0, ${0.08 + t * 0.12})`;
-    ctx.fill();
-  }
-
-  // Star emblem with glow
-  const starGlow = ctx.createRadialGradient(fx + 5, fy + 10 + wave / 2, 2, fx + 5, fy + 10 + wave / 2, 8);
-  starGlow.addColorStop(0, 'rgba(255, 200, 50, 0.3)');
-  starGlow.addColorStop(1, 'rgba(255, 180, 0, 0)');
-  ctx.fillStyle = starGlow;
+  // Door handle
+  ctx.fillStyle = '#c9a961';
   ctx.beginPath();
-  ctx.arc(fx + 5, fy + 10 + wave / 2, 8, 0, 6.28);
+  ctx.arc(fx + 10, fy + 23, 1.5, 0, 6.28);
+  ctx.fill();
+  ctx.strokeStyle = '#8a7a60';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // Vertical line in door (divider)
+  ctx.strokeStyle = '#4a4a4a';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(fx, fy + 9);
+  ctx.lineTo(fx, fy + 39);
+  ctx.stroke();
+
+  // Horizontal divider
+  ctx.beginPath();
+  ctx.moveTo(fx - 11, fy + 24);
+  ctx.lineTo(fx + 11, fy + 24);
+  ctx.stroke();
+
+  // Green EXIT sign above with glow
+  const exitGlowGrad = ctx.createRadialGradient(fx, fy, 5, fx, fy, 20);
+  exitGlowGrad.addColorStop(0, 'rgba(100, 255, 100, 0.4)');
+  exitGlowGrad.addColorStop(0.5, 'rgba(50, 200, 50, 0.15)');
+  exitGlowGrad.addColorStop(1, 'rgba(0, 150, 0, 0)');
+  ctx.fillStyle = exitGlowGrad;
+  ctx.beginPath();
+  ctx.arc(fx, fy - 2, 20, 0, 6.28);
   ctx.fill();
 
-  // Star shadow
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-  ctx.font = 'bold 8px monospace';
-  ctx.textAlign = 'left';
+  // EXIT sign background (bright green)
+  ctx.fillStyle = '#00ff00';
+  ctx.fillRect(fx - 10, fy - 8, 20, 8);
+  ctx.strokeStyle = '#00aa00';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(fx - 10, fy - 8, 20, 8);
+
+  // EXIT text with glow
+  ctx.fillStyle = '#000000';
+  ctx.font = 'bold 5px monospace';
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('★', fx + 5.5, fy + 11 + wave / 2);
+  ctx.shadowColor = 'rgba(0, 255, 0, 0.8)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+  ctx.fillText('EXIT', fx, fy - 4);
+  ctx.shadowColor = 'transparent';
 
-  // Star main color
-  ctx.fillStyle = '#d4a500';
-  ctx.fillText('★', fx + 5, fy + 10 + wave / 2);
-
-  // Base with wood texture
-  const baseGrad = ctx.createLinearGradient(fx - 6, GROUND_Y - 4, fx + 10, GROUND_Y - 4);
-  baseGrad.addColorStop(0, '#8a7a5a');
-  baseGrad.addColorStop(0.5, '#9a8a6a');
-  baseGrad.addColorStop(1, '#7a6a4a');
+  // Base mounting bracket
+  const baseGrad = ctx.createLinearGradient(fx - 14, GROUND_Y - 4, fx + 14, GROUND_Y - 4);
+  baseGrad.addColorStop(0, '#7a6a5a');
+  baseGrad.addColorStop(0.5, '#8a7a6a');
+  baseGrad.addColorStop(1, '#6a5a4a');
   ctx.fillStyle = baseGrad;
-  ctx.fillRect(fx - 6, GROUND_Y - 4, 16, 8);
+  ctx.fillRect(fx - 14, GROUND_Y - 3, 28, 6);
 
   // Base shadow
   ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-  ctx.fillRect(fx - 6, GROUND_Y + 2, 16, 2);
+  ctx.fillRect(fx - 14, GROUND_Y + 2, 28, 2);
 
   // Draw celebration particles with soft glow
   celebrationParticles.forEach(p => {
@@ -4634,7 +4649,7 @@ function drawPixelHeart(ctx, x, y, size, mainColor, highlightColor, shadowColor)
 function drawAbilityCooldown(now) {
   if (player.abilityTimer <= 0) return;
 
-  const cooldownMax = player.charCls === 'warrior' || player.charCls === 'mage' ? 5 : 3;
+  const cooldownMax = player.charCls === 'inspector' || player.charCls === 'planner' ? 5 : 3;
   const progress = Math.max(0, 1 - player.abilityTimer / cooldownMax);
 
   const x = 200;
@@ -5023,22 +5038,22 @@ function drawWaterPool(pool, now) {
 
   ctx.save();
 
-  // Rich water body with translucent gradient
+  // Printer ink body with translucent gradient
   const waterGrad = ctx.createLinearGradient(0, topY, 0, botY);
-  waterGrad.addColorStop(0, 'rgba(40,100,180,0.65)');
-  waterGrad.addColorStop(0.3, 'rgba(30,80,160,0.75)');
-  waterGrad.addColorStop(0.6, 'rgba(20,50,120,0.85)');
-  waterGrad.addColorStop(1, 'rgba(10,25,80,0.95)');
+  waterGrad.addColorStop(0, 'rgba(10,40,50,0.65)');
+  waterGrad.addColorStop(0.3, 'rgba(5,25,35,0.75)');
+  waterGrad.addColorStop(0.6, 'rgba(0,15,25,0.85)');
+  waterGrad.addColorStop(1, 'rgba(0,5,15,0.95)');
   ctx.fillStyle = waterGrad;
   ctx.fillRect(rx, topY, pool.w, pool.depth);
 
-  // Soft caustic light patterns
+  // Soft caustic light patterns (darker ink patterns)
   ctx.globalAlpha = 0.15;
   for (let lx = 0; lx < pool.w; lx += 20) {
     const causticX = rx + lx + Math.sin(now * 0.003 + lx * 0.05) * 8;
     const causticGrad = ctx.createRadialGradient(causticX, topY + pool.depth/3, 2, causticX, topY + pool.depth/3, 15);
-    causticGrad.addColorStop(0, 'rgba(100,200,255,0.4)');
-    causticGrad.addColorStop(1, 'rgba(100,200,255,0)');
+    causticGrad.addColorStop(0, 'rgba(0,100,120,0.4)');
+    causticGrad.addColorStop(1, 'rgba(0,100,120,0)');
     ctx.fillStyle = causticGrad;
     ctx.beginPath();
     ctx.arc(causticX, topY + pool.depth/3, 15, 0, 6.28);
@@ -5057,10 +5072,10 @@ function drawWaterPool(pool, now) {
   ctx.lineTo(rx + pool.w, topY + 10);
   ctx.closePath();
 
-  // Water surface with gradient
+  // Ink surface with gradient
   const surfaceGrad = ctx.createLinearGradient(0, topY, 0, topY + 5);
-  surfaceGrad.addColorStop(0, 'rgba(80,140,220,0.6)');
-  surfaceGrad.addColorStop(1, 'rgba(40,100,180,0.3)');
+  surfaceGrad.addColorStop(0, 'rgba(0,60,80,0.6)');
+  surfaceGrad.addColorStop(1, 'rgba(10,40,50,0.3)');
   ctx.fillStyle = surfaceGrad;
   ctx.fill();
 
@@ -5070,25 +5085,25 @@ function drawWaterPool(pool, now) {
     const shimmer = (Math.sin(now * 0.006 + wx * 0.3) + 1) / 2;
 
     const shimmerGrad = ctx.createRadialGradient(rx + wx, topY + waveH, 1, rx + wx, topY + waveH, 5);
-    shimmerGrad.addColorStop(0, `rgba(180,220,255,${0.5 + shimmer * 0.4})`);
-    shimmerGrad.addColorStop(1, 'rgba(150,200,255,0)');
+    shimmerGrad.addColorStop(0, `rgba(60,140,160,${0.5 + shimmer * 0.4})`);
+    shimmerGrad.addColorStop(1, 'rgba(30,100,130,0)');
     ctx.fillStyle = shimmerGrad;
     ctx.beginPath();
     ctx.arc(rx + wx, topY + waveH, 5, 0, 6.28);
     ctx.fill();
   }
 
-  // Soft foam at edges with gradient
+  // Soft ink foam at edges with gradient
   const foamL = Math.sin(now * 0.005) * 1.5;
   const foamGradL = ctx.createLinearGradient(rx, topY + foamL, rx + 5, topY + foamL);
-  foamGradL.addColorStop(0, 'rgba(200,240,255,0.5)');
-  foamGradL.addColorStop(1, 'rgba(180,220,255,0.1)');
+  foamGradL.addColorStop(0, 'rgba(80,140,160,0.5)');
+  foamGradL.addColorStop(1, 'rgba(50,110,140,0.1)');
   ctx.fillStyle = foamGradL;
   ctx.fillRect(rx, topY + foamL, 3, 5);
 
   const foamGradR = ctx.createLinearGradient(rx + pool.w - 5, topY + foamL, rx + pool.w, topY + foamL);
-  foamGradR.addColorStop(0, 'rgba(180,220,255,0.1)');
-  foamGradR.addColorStop(1, 'rgba(200,240,255,0.5)');
+  foamGradR.addColorStop(0, 'rgba(50,110,140,0.1)');
+  foamGradR.addColorStop(1, 'rgba(80,140,160,0.5)');
   ctx.fillStyle = foamGradR;
   ctx.fillRect(rx + pool.w - 3, topY + foamL, 3, 5);
 
@@ -5106,13 +5121,13 @@ function drawLavaPool(pool, now) {
 
   ctx.save();
 
-  // Rich lava body with multi-layered gradient
+  // Hot coffee body with multi-layered gradient
   const lavaGrad = ctx.createLinearGradient(0, topY, 0, botY);
-  lavaGrad.addColorStop(0, 'rgba(255,140,40,0.9)');
-  lavaGrad.addColorStop(0.25, 'rgba(240,100,20,0.95)');
-  lavaGrad.addColorStop(0.5, 'rgba(220,60,10,0.95)');
-  lavaGrad.addColorStop(0.75, 'rgba(180,30,5,0.95)');
-  lavaGrad.addColorStop(1, 'rgba(120,10,0,1)');
+  lavaGrad.addColorStop(0, 'rgba(120,70,30,0.9)');
+  lavaGrad.addColorStop(0.25, 'rgba(100,55,20,0.95)');
+  lavaGrad.addColorStop(0.5, 'rgba(80,40,10,0.95)');
+  lavaGrad.addColorStop(0.75, 'rgba(60,30,5,0.95)');
+  lavaGrad.addColorStop(1, 'rgba(40,20,0,1)');
   ctx.fillStyle = lavaGrad;
   ctx.fillRect(rx, topY, pool.w, pool.depth);
 
@@ -5127,11 +5142,11 @@ function drawLavaPool(pool, now) {
   ctx.lineTo(rx + pool.w, topY + 10);
   ctx.closePath();
 
-  // Surface gradient with bright orange core
+  // Surface gradient with cream/tan core
   const lavaTopGrad = ctx.createLinearGradient(0, topY - 2, 0, topY + 8);
-  lavaTopGrad.addColorStop(0, 'rgba(255,180,60,0.7)');
-  lavaTopGrad.addColorStop(0.5, 'rgba(255,160,40,0.6)');
-  lavaTopGrad.addColorStop(1, 'rgba(240,100,20,0.4)');
+  lavaTopGrad.addColorStop(0, 'rgba(180,130,70,0.7)');
+  lavaTopGrad.addColorStop(0.5, 'rgba(160,110,60,0.6)');
+  lavaTopGrad.addColorStop(1, 'rgba(140,90,40,0.4)');
   ctx.fillStyle = lavaTopGrad;
   ctx.fill();
 
@@ -5141,31 +5156,31 @@ function drawLavaPool(pool, now) {
     const brightness = (Math.sin(phase) + 1) / 2;
     const waveH = Math.sin(now * 0.002 + (pool.x + lx) * 0.06) * 3;
 
-    // Hotspot glow
+    // Hotspot glow (cream colored)
     const hotGlow = ctx.createRadialGradient(rx + lx, topY + pool.depth/2 + waveH, 1, rx + lx, topY + pool.depth/2 + waveH, 6);
-    hotGlow.addColorStop(0, `rgba(255,240,100,${0.4 + brightness * 0.4})`);
-    hotGlow.addColorStop(1, `rgba(255,200,60,${0.1 + brightness * 0.2})`);
+    hotGlow.addColorStop(0, `rgba(220,190,130,${0.4 + brightness * 0.4})`);
+    hotGlow.addColorStop(1, `rgba(180,150,90,${0.1 + brightness * 0.2})`);
     ctx.fillStyle = hotGlow;
     ctx.beginPath();
     ctx.arc(rx + lx, topY + pool.depth/2 + waveH, 6, 0, 6.28);
     ctx.fill();
 
-    // Hotspot core
+    // Hotspot core (lighter cream)
     const hotCore = ctx.createRadialGradient(rx + lx, topY + pool.depth/2 + waveH, 0.5, rx + lx, topY + pool.depth/2 + waveH, 4);
-    hotCore.addColorStop(0, `rgba(255,255,150,${0.5 + brightness * 0.5})`);
-    hotCore.addColorStop(1, `rgba(255,220,80,${0.2 + brightness * 0.3})`);
+    hotCore.addColorStop(0, `rgba(240,210,160,${0.5 + brightness * 0.5})`);
+    hotCore.addColorStop(1, `rgba(210,180,130,${0.2 + brightness * 0.3})`);
     ctx.fillStyle = hotCore;
     ctx.beginPath();
     ctx.arc(rx + lx, topY + pool.depth/2 + waveH, 4, 0, 6.28);
     ctx.fill();
   }
 
-  // Heat shimmer glow rising above the surface
+  // Warm coffee steam shimmer rising above the surface
   const glowGrad = ctx.createLinearGradient(0, topY - 25, 0, topY);
-  glowGrad.addColorStop(0, 'rgba(255,100,20,0)');
-  glowGrad.addColorStop(0.3, 'rgba(255,120,40,0.08)');
-  glowGrad.addColorStop(0.7, 'rgba(255,140,60,0.15)');
-  glowGrad.addColorStop(1, 'rgba(255,100,20,0.1)');
+  glowGrad.addColorStop(0, 'rgba(180,120,60,0)');
+  glowGrad.addColorStop(0.3, 'rgba(190,140,80,0.08)');
+  glowGrad.addColorStop(0.7, 'rgba(200,150,100,0.15)');
+  glowGrad.addColorStop(1, 'rgba(180,120,60,0.1)');
   ctx.fillStyle = glowGrad;
   ctx.fillRect(rx - 4, topY - 25, pool.w + 8, 25);
 
@@ -5179,20 +5194,20 @@ function drawLavaBubble(b) {
   ctx.save();
   ctx.globalAlpha = alpha;
 
-  // Bubble glow
+  // Coffee bubble glow
   const bubbleGlow = ctx.createRadialGradient(bx, b.y, 1, bx, b.y, b.size + 3);
-  bubbleGlow.addColorStop(0, 'rgba(255,220,80,0.4)');
-  bubbleGlow.addColorStop(1, 'rgba(255,180,40,0)');
+  bubbleGlow.addColorStop(0, 'rgba(210,160,100,0.4)');
+  bubbleGlow.addColorStop(1, 'rgba(170,120,60,0)');
   ctx.fillStyle = bubbleGlow;
   ctx.beginPath();
   ctx.arc(bx, b.y, b.size + 3, 0, 6.28);
   ctx.fill();
 
-  // Main bubble with gradient
+  // Main coffee bubble with gradient
   const bubbleGrad = ctx.createRadialGradient(bx - 1, b.y - 1, 0.5, bx, b.y, b.size);
-  bubbleGrad.addColorStop(0, 'rgba(255,240,150,0.9)');
-  bubbleGrad.addColorStop(0.6, 'rgba(255,200,60,0.8)');
-  bubbleGrad.addColorStop(1, 'rgba(220,160,40,0.6)');
+  bubbleGrad.addColorStop(0, 'rgba(220,180,130,0.9)');
+  bubbleGrad.addColorStop(0.6, 'rgba(180,140,90,0.8)');
+  bubbleGrad.addColorStop(1, 'rgba(140,100,60,0.6)');
   ctx.fillStyle = bubbleGrad;
   ctx.beginPath();
   ctx.arc(bx, b.y, b.size, 0, 6.28);
@@ -5218,20 +5233,20 @@ function drawHeatShimmer(s) {
   ctx.save();
   ctx.globalAlpha = alpha;
 
-  // Heat shimmer glow with painterly gradient
+  // Coffee steam shimmer glow with painterly gradient
   const shimmerGlow = ctx.createRadialGradient(sx + wobble, s.y, 1, sx + wobble, s.y, s.size * 1.5);
-  shimmerGlow.addColorStop(0, 'rgba(255,180,80,0.5)');
-  shimmerGlow.addColorStop(0.5, 'rgba(255,150,50,0.2)');
-  shimmerGlow.addColorStop(1, 'rgba(255,100,30,0)');
+  shimmerGlow.addColorStop(0, 'rgba(200,150,100,0.5)');
+  shimmerGlow.addColorStop(0.5, 'rgba(170,120,70,0.2)');
+  shimmerGlow.addColorStop(1, 'rgba(140,90,40,0)');
   ctx.fillStyle = shimmerGlow;
   ctx.beginPath();
   ctx.arc(sx + wobble, s.y, s.size * 1.5, 0, 6.28);
   ctx.fill();
 
-  // Core shimmer
+  // Core coffee steam shimmer
   const shimmerCore = ctx.createRadialGradient(sx + wobble - 1, s.y - 1, 0, sx + wobble, s.y, s.size);
-  shimmerCore.addColorStop(0, 'rgba(255,200,100,0.5)');
-  shimmerCore.addColorStop(1, 'rgba(255,150,50,0)');
+  shimmerCore.addColorStop(0, 'rgba(220,170,120,0.5)');
+  shimmerCore.addColorStop(1, 'rgba(170,120,70,0)');
   ctx.fillStyle = shimmerCore;
   ctx.beginPath();
   ctx.arc(sx + wobble, s.y, s.size, 0, 6.28);
@@ -5445,7 +5460,7 @@ function getGameStats() {
     coinsCollected: coinsCollected,
     totalCoins: totalCoins,
     enemiesStomped: enemiesStomped,
-    totalEnemies: FAMILY.length - 1,
+    totalEnemies: OFFICE.length - 1,
     timePlayed: timePlayed,
     bossDefeated: bossDefeated,
     grade: grade
@@ -5660,7 +5675,7 @@ function initTitleScreen() {
   }
 
   // Floating family characters that drift across the screen
-  floatingChars = FAMILY.map((f, i) => ({
+  floatingChars = OFFICE.map((f, i) => ({
     x: Math.random() * TITLE_W,
     y: TITLE_H * 0.55 + Math.random() * TITLE_H * 0.3,
     vx: (Math.random() - 0.5) * 20 + (i % 2 === 0 ? 8 : -8),
@@ -5712,76 +5727,76 @@ function titleLoop(now) {
   titlePulse = now;
   const tc = titleCtx;
 
-  // === BACKGROUND: Rich nebula gradient (painterly) ===
+  // === BACKGROUND: Dark blue-gray office-at-night gradient ===
   const bg = tc.createLinearGradient(0, 0, 0, TITLE_H);
-  bg.addColorStop(0, '#0a0515');
-  bg.addColorStop(0.25, '#1a0a35');
-  bg.addColorStop(0.5, '#2a1050');
-  bg.addColorStop(0.75, '#1a0a35');
-  bg.addColorStop(1, '#0f0620');
+  bg.addColorStop(0, '#0a0f1a');
+  bg.addColorStop(0.25, '#1a2535');
+  bg.addColorStop(0.5, '#2a3545');
+  bg.addColorStop(0.75, '#1a2535');
+  bg.addColorStop(1, '#1a2030');
   tc.fillStyle = bg;
   tc.fillRect(0, 0, TITLE_W, TITLE_H);
 
-  // === NEBULA GLOW (soft color blobs with more depth) ===
-  const nebulaPhase = now * 0.0003;
-  const nebulae = [
-    {x:0.25, y:0.35, c:'140,60,200', r:150, opacity: 0.12},
-    {x:0.7, y:0.25, c:'60,100,180', r:140, opacity: 0.11},
-    {x:0.5, y:0.7, c:'180,80,50', r:120, opacity: 0.10}
+  // === FLUORESCENT CEILING LIGHTS (rectangular warm white glows) ===
+  const lightPhase = now * 0.0002;
+  const ceilingLights = [
+    {x:0.2, y:0.1, w:80, h:12, opacity: 0.15},
+    {x:0.75, y:0.12, w:90, h:14, opacity: 0.13},
+    {x:0.5, y:0.08, w:100, h:13, opacity: 0.14}
   ];
-  nebulae.forEach(n => {
-    const nx = TITLE_W * n.x + Math.sin(nebulaPhase + n.x * 5) * 40;
-    const ny = TITLE_H * n.y + Math.cos(nebulaPhase * 0.7 + n.y * 3) * 30;
-    const pulse = (Math.sin(now * 0.001 + n.x * 10) + 1) / 2;
+  ceilingLights.forEach(light => {
+    const pulse = (Math.sin(lightPhase + light.x * 5) + 1) / 2;
+    const lx = TITLE_W * light.x;
+    const ly = TITLE_H * light.y;
 
-    // Multi-layer nebula glow for painterly depth
-    const grad1 = tc.createRadialGradient(nx, ny, 0, nx, ny, n.r * 1.2 + pulse * 40);
-    grad1.addColorStop(0, `rgba(${n.c},${(n.opacity + pulse * 0.08) * 0.5})`);
-    grad1.addColorStop(0.4, `rgba(${n.c},${n.opacity + pulse * 0.06})`);
-    grad1.addColorStop(1, `rgba(${n.c},0)`);
-    tc.fillStyle = grad1;
-    tc.fillRect(0, 0, TITLE_W, TITLE_H);
+    // Soft horizontal glow rectangle
+    const lightGrad = tc.createLinearGradient(lx - light.w, ly, lx + light.w, ly);
+    lightGrad.addColorStop(0, `rgba(255,240,200,0)`);
+    lightGrad.addColorStop(0.2, `rgba(255,245,220,${(light.opacity + pulse * 0.06) * 0.8})`);
+    lightGrad.addColorStop(0.5, `rgba(255,250,230,${light.opacity + pulse * 0.08})`);
+    lightGrad.addColorStop(0.8, `rgba(255,245,220,${(light.opacity + pulse * 0.06) * 0.8})`);
+    lightGrad.addColorStop(1, `rgba(255,240,200,0)`);
+    tc.fillStyle = lightGrad;
+    tc.fillRect(lx - light.w, ly - light.h/2, light.w * 2, light.h);
   });
 
-  // === PARALLAX STARFIELD with glow ===
+  // === CITY SKYLINE at bottom (dark building rectangles with lit windows) ===
   menuStars.forEach(s => {
+    // Reuse menuStars array to draw building rectangles instead
     const layerSpeed = [0.3, 0.7, 1.2][s.layer];
-    const layerSize = [0.6, 1.0, 1.5][s.layer];
     s.x -= s.speed * layerSpeed;
     if (s.x < -5) s.x = TITLE_W + 5;
 
-    const tw = (Math.sin(now * 0.003 + s.twinkle) + 1) / 2;
-    const alpha = 0.25 + tw * 0.7;
-    const sz = s.r * layerSize;
+    // Draw building as a dark rectangle
+    const buildingH = 80 + s.layer * 40;
+    const buildingW = 40 + Math.random() * 30;
+    const buildingX = s.x;
+    const buildingY = TITLE_H * 0.65 - buildingH;
 
-    if (s.bright) {
-      // Painterly star with soft glow
-      const starGlow = tc.createRadialGradient(s.x, s.y, 0, s.x, s.y, sz * 3.5);
-      starGlow.addColorStop(0, `rgba(255,240,180,${alpha * 0.4})`);
-      starGlow.addColorStop(0.6, `rgba(255,200,100,${alpha * 0.15})`);
-      starGlow.addColorStop(1, 'rgba(255,200,100,0)');
-      tc.fillStyle = starGlow;
-      tc.beginPath(); tc.arc(s.x, s.y, sz * 3.5, 0, 6.28); tc.fill();
+    tc.fillStyle = `rgba(15,20,35,0.8)`;
+    tc.fillRect(buildingX, buildingY, buildingW, buildingH);
 
-      tc.fillStyle = `rgba(255,255,240,${alpha * 0.8})`;
-      tc.fillRect(s.x - sz * 2.2, s.y, sz * 4.4, 0.8);
-      tc.fillRect(s.x, s.y - sz * 2.2, 0.8, sz * 4.4);
-      tc.fillStyle = `rgba(255,255,200,${alpha * 0.6})`;
-      tc.beginPath(); tc.arc(s.x, s.y, sz * 1.8, 0, 6.28); tc.fill();
-    } else {
-      // Subtle glow for normal stars
-      const smallGlow = tc.createRadialGradient(s.x, s.y, 0, s.x, s.y, sz * 2.5);
-      smallGlow.addColorStop(0, `rgba(240,240,220,${alpha * 0.3})`);
-      smallGlow.addColorStop(1, 'rgba(240,240,220,0)');
-      tc.fillStyle = smallGlow;
-      tc.beginPath(); tc.arc(s.x, s.y, sz * 2.5, 0, 6.28); tc.fill();
+    // Draw lit windows (small yellow/white rectangles)
+    const windowSize = 4;
+    const windowGap = 8;
+    for (let wx = buildingX + 6; wx < buildingX + buildingW - 4; wx += windowGap) {
+      for (let wy = buildingY + 8; wy < buildingY + buildingH - 4; wy += windowGap) {
+        // Randomly lit windows
+        if (Math.random() > 0.3) {
+          const windowGlow = tc.createRadialGradient(wx + 2, wy + 2, 0, wx + 2, wy + 2, 5);
+          windowGlow.addColorStop(0, `rgba(255,240,150,0.6)`);
+          windowGlow.addColorStop(1, `rgba(255,220,100,0.1)`);
+          tc.fillStyle = windowGlow;
+          tc.beginPath(); tc.arc(wx + 2, wy + 2, 5, 0, 6.28); tc.fill();
 
-      tc.fillStyle = `rgba(255,255,240,${alpha})`;
-      tc.beginPath(); tc.arc(s.x, s.y, sz, 0, 6.28); tc.fill();
+          tc.fillStyle = `rgba(255,245,180,0.8)`;
+          tc.fillRect(wx, wy, windowSize, windowSize);
+        }
+      }
     }
   });
 
-  // === SHOOTING STARS (occasional) ===
+  // === PAPER AIRPLANE PARTICLES (occasional) ===
   if (Math.random() < 0.003) {
     menuParticles.push({
       x: Math.random() * TITLE_W * 0.8 + TITLE_W * 0.1,
@@ -5790,13 +5805,16 @@ function titleLoop(now) {
       vy: 80 + Math.random() * 60,
       life: 0.5 + Math.random() * 0.3,
       maxLife: 0.8,
-      type: 'shooting',
+      type: 'paperplane',
+      rotation: Math.random() * 6.28,
     });
   }
 
-  // === AMBIENT FLOATING PARTICLES ===
+  // === STICKY-NOTE PARTICLES (drifting office supplies) ===
   if (Math.random() < 0.08) {
-    const colors = ['255,220,100', '220,160,255', '120,200,255', '255,140,120'];
+    const colors = ['255,255,180', '255,200,150', '200,220,255', '200,255,180'];
+    const hexColors = ['#ffff99', '#ffc899', '#c8dcff', '#c8ffb3'];
+    const colorIdx = Math.floor(Math.random() * colors.length);
     menuParticles.push({
       x: Math.random() * TITLE_W,
       y: TITLE_H + 5,
@@ -5804,9 +5822,11 @@ function titleLoop(now) {
       vy: -20 - Math.random() * 30,
       life: 2 + Math.random() * 2,
       maxLife: 4,
-      type: 'float',
-      color: colors[Math.floor(Math.random() * colors.length)],
-      size: Math.random() * 2.5 + 1.5,
+      type: 'stickynote',
+      color: colors[colorIdx],
+      hexColor: hexColors[colorIdx],
+      size: 8 + Math.random() * 4,
+      rotation: Math.random() * 0.3 - 0.15,
     });
   }
 
@@ -5818,39 +5838,43 @@ function titleLoop(now) {
     if (p.life <= 0) return false;
 
     const alpha = Math.min(p.life / (p.maxLife * 0.3), 1);
-    if (p.type === 'shooting') {
-      // Painterly shooting star with gradient trail
-      const trailGrad = tc.createLinearGradient(p.x - p.vx * 0.05, p.y - p.vy * 0.05, p.x, p.y);
-      trailGrad.addColorStop(0, `rgba(255,240,180,0)`);
-      trailGrad.addColorStop(0.7, `rgba(255,220,150,${alpha * 0.5})`);
-      trailGrad.addColorStop(1, `rgba(255,255,200,${alpha * 0.9})`);
-      tc.strokeStyle = trailGrad;
-      tc.lineWidth = 2.5;
-      tc.lineCap = 'round';
+    if (p.type === 'paperplane') {
+      // Paper airplane particle (small triangles)
+      tc.save();
+      tc.translate(p.x, p.y);
+      tc.rotate(p.rotation + p.vx * 0.001);
+      tc.fillStyle = `rgba(240,240,240,${alpha * 0.8})`;
       tc.beginPath();
-      tc.moveTo(p.x - p.vx * 0.05, p.y - p.vy * 0.05);
-      tc.lineTo(p.x, p.y);
-      tc.stroke();
+      tc.moveTo(0, -4);
+      tc.lineTo(-3, 4);
+      tc.lineTo(3, 4);
+      tc.closePath();
+      tc.fill();
+      tc.restore();
+    } else if (p.type === 'stickynote') {
+      // Sticky note particle (small colored rectangles)
+      tc.save();
+      tc.translate(p.x, p.y);
+      tc.rotate(p.rotation + Math.sin(now * 0.003 + p.x * 0.01) * 0.05);
 
-      const starGlow = tc.createRadialGradient(p.x, p.y, 0, p.x, p.y, 4);
-      starGlow.addColorStop(0, `rgba(255,255,240,${alpha})`);
-      starGlow.addColorStop(1, `rgba(255,200,100,0)`);
-      tc.fillStyle = starGlow;
-      tc.beginPath(); tc.arc(p.x, p.y, 4, 0, 6.28); tc.fill();
+      // Glow effect
+      const noteGlow = tc.createRadialGradient(0, 0, 0, 0, 0, p.size * 1.5);
+      noteGlow.addColorStop(0, `rgba(${p.color},${alpha * 0.5})`);
+      noteGlow.addColorStop(1, `rgba(${p.color},0)`);
+      tc.fillStyle = noteGlow;
+      tc.beginPath(); tc.arc(0, 0, p.size * 1.5, 0, 6.28); tc.fill();
 
-      tc.fillStyle = `rgba(255,255,255,${alpha * 0.8})`;
-      tc.beginPath(); tc.arc(p.x, p.y, 1.8, 0, 6.28); tc.fill();
-    } else {
-      const wobble = Math.sin(now * 0.005 + p.x * 0.1) * 5;
-      // Soft radial gradient for floating particles
-      const pGlow = tc.createRadialGradient(p.x + wobble, p.y, 0, p.x + wobble, p.y, p.size * 3);
-      pGlow.addColorStop(0, `rgba(${p.color},${alpha * 0.7})`);
-      pGlow.addColorStop(1, `rgba(${p.color},0)`);
-      tc.fillStyle = pGlow;
-      tc.beginPath(); tc.arc(p.x + wobble, p.y, p.size * 3, 0, 6.28); tc.fill();
+      // Main note rectangle
+      tc.fillStyle = p.hexColor;
+      tc.globalAlpha = alpha * 0.9;
+      tc.fillRect(-p.size/2, -p.size/2, p.size, p.size);
 
-      tc.fillStyle = `rgba(${p.color},${alpha * 0.9})`;
-      tc.beginPath(); tc.arc(p.x + wobble, p.y, p.size, 0, 6.28); tc.fill();
+      // Subtle shadow line (crease)
+      tc.globalAlpha = alpha * 0.3;
+      tc.fillStyle = 'rgba(0,0,0,1)';
+      tc.fillRect(-p.size/2, -p.size/2 + 2, p.size, 1);
+
+      tc.restore();
     }
     return true;
   });
@@ -5962,9 +5986,9 @@ function titleLoop(now) {
   tc.font = 'bold 58px monospace';
 
   tc.fillStyle = 'rgba(0,0,0,0.3)';
-  tc.fillText('FAMILY', TITLE_W/2 + 4, famY + 4);
+  tc.fillText('ARCHITECTURE', TITLE_W/2 + 4, famY + 4);
   tc.fillStyle = 'rgba(0,0,0,0.5)';
-  tc.fillText('FAMILY', TITLE_W/2 + 2, famY + 2);
+  tc.fillText('ARCHITECTURE', TITLE_W/2 + 2, famY + 2);
 
   const grad2 = tc.createLinearGradient(0, famY - 30, 0, famY + 30);
   grad2.addColorStop(0, '#ffee99');
@@ -5973,10 +5997,10 @@ function titleLoop(now) {
   grad2.addColorStop(0.7, '#e8a832');
   grad2.addColorStop(1, '#cc8800');
   tc.fillStyle = grad2;
-  tc.fillText('FAMILY', TITLE_W/2, famY);
+  tc.fillText('ARCHITECTURE', TITLE_W/2, famY);
 
   tc.fillStyle = `rgba(255,255,220,${0.2 + pulse * 0.12})`;
-  tc.fillText('FAMILY', TITLE_W/2, famY - 1);
+  tc.fillText('ARCHITECTURE', TITLE_W/2, famY - 1);
 
   const lineY = famY + 35;
   const lineW = 240 + pulse * 40;
@@ -6128,7 +6152,7 @@ function initCharSelectScreen() {
   charSelectCanvas.height = TITLE_H;
 
   csSelectedIdx = 0;
-  selectedChar = FAMILY[0];
+  selectedChar = OFFICE[0];
   csSparkles = [];
 
   charSelectCanvas.addEventListener('click', handleCharSelectClick);
@@ -6147,7 +6171,7 @@ function getCharCardRects() {
   const startX = TITLE_W / 2 - totalW / 2;
   const startY = TITLE_H * 0.22;
 
-  for (let i = 0; i < FAMILY.length; i++) {
+  for (let i = 0; i < OFFICE.length; i++) {
     const col = i % cols;
     const row = Math.floor(i / cols);
     cards.push({
@@ -6309,7 +6333,7 @@ function handleCharSelectClick(e) {
     const c = cards[i];
     if (mx >= c.x && mx <= c.x + c.w && my >= c.y && my <= c.y + c.h) {
       csSelectedIdx = i;
-      selectedChar = FAMILY[i];
+      selectedChar = OFFICE[i];
       for (let j = 0; j < 20; j++) {
         const angle = Math.random() * 6.28;
         const speed = Math.random() * 80 + 30;
@@ -6317,7 +6341,7 @@ function handleCharSelectClick(e) {
           x: c.x + c.w/2, y: c.y + c.h/2,
           vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
           life: 0.5 + Math.random() * 0.3,
-          color: FAMILY[i].color,
+          color: OFFICE[i].color,
         });
       }
       return;
@@ -6333,50 +6357,68 @@ function handleCharSelectClick(e) {
 function charSelectLoop(now) {
   const cc = charSelectCtx;
 
-  // === BACKGROUND: Rich nebula gradient (painterly) ===
+  // === BACKGROUND: Dark blue-gray office-at-night gradient ===
   const bg = cc.createLinearGradient(0, 0, 0, TITLE_H);
-  bg.addColorStop(0, '#0a0515');
-  bg.addColorStop(0.25, '#1a0a35');
-  bg.addColorStop(0.5, '#2a1050');
-  bg.addColorStop(0.75, '#1a0a35');
-  bg.addColorStop(1, '#0f0620');
+  bg.addColorStop(0, '#0a0f1a');
+  bg.addColorStop(0.25, '#1a2535');
+  bg.addColorStop(0.5, '#2a3545');
+  bg.addColorStop(0.75, '#1a2535');
+  bg.addColorStop(1, '#1a2030');
   cc.fillStyle = bg;
   cc.fillRect(0, 0, TITLE_W, TITLE_H);
 
-  // === NEBULA GLOW ===
-  const nebulaPhase = now * 0.0003;
-  const nebulae = [
-    {x:0.25, y:0.35, c:'140,60,200', r:150, opacity: 0.08},
-    {x:0.7, y:0.25, c:'60,100,180', r:140, opacity: 0.07},
-    {x:0.5, y:0.7, c:'180,80,50', r:120, opacity: 0.06}
+  // === FLUORESCENT CEILING LIGHTS (rectangular warm white glows) ===
+  const lightPhase = now * 0.0002;
+  const ceilingLights = [
+    {x:0.2, y:0.1, w:80, h:12, opacity: 0.15},
+    {x:0.75, y:0.12, w:90, h:14, opacity: 0.13},
+    {x:0.5, y:0.08, w:100, h:13, opacity: 0.14}
   ];
-  nebulae.forEach(n => {
-    const nx = TITLE_W * n.x + Math.sin(nebulaPhase + n.x * 5) * 40;
-    const ny = TITLE_H * n.y + Math.cos(nebulaPhase * 0.7 + n.y * 3) * 30;
-    const pulse = (Math.sin(now * 0.001 + n.x * 10) + 1) / 2;
-    const grad = cc.createRadialGradient(nx, ny, 0, nx, ny, n.r * 1.2 + pulse * 40);
-    grad.addColorStop(0, `rgba(${n.c},${(n.opacity + pulse * 0.06) * 0.5})`);
-    grad.addColorStop(0.4, `rgba(${n.c},${n.opacity + pulse * 0.04})`);
-    grad.addColorStop(1, `rgba(${n.c},0)`);
-    cc.fillStyle = grad;
-    cc.fillRect(0, 0, TITLE_W, TITLE_H);
+  ceilingLights.forEach(light => {
+    const pulse = (Math.sin(lightPhase + light.x * 5) + 1) / 2;
+    const lx = TITLE_W * light.x;
+    const ly = TITLE_H * light.y;
+
+    // Soft horizontal glow rectangle
+    const lightGrad = cc.createLinearGradient(lx - light.w, ly, lx + light.w, ly);
+    lightGrad.addColorStop(0, `rgba(255,240,200,0)`);
+    lightGrad.addColorStop(0.2, `rgba(255,245,220,${(light.opacity + pulse * 0.06) * 0.8})`);
+    lightGrad.addColorStop(0.5, `rgba(255,250,230,${light.opacity + pulse * 0.08})`);
+    lightGrad.addColorStop(0.8, `rgba(255,245,220,${(light.opacity + pulse * 0.06) * 0.8})`);
+    lightGrad.addColorStop(1, `rgba(255,240,200,0)`);
+    cc.fillStyle = lightGrad;
+    cc.fillRect(lx - light.w, ly - light.h/2, light.w * 2, light.h);
   });
 
-  // === STARFIELD with soft glow ===
+  // === CITY SKYLINE at bottom (dark building rectangles with lit windows) ===
   menuStars.forEach(s => {
-    const tw = (Math.sin(now * 0.003 + s.twinkle) + 1) / 2;
-    const alpha = 0.2 + tw * 0.4;
-    const sz = s.r * 0.8;
+    // Reuse menuStars array to draw building rectangles instead
+    const buildingH = 80 + s.layer * 40;
+    const buildingW = 40 + Math.random() * 30;
+    const buildingX = s.x;
+    const buildingY = TITLE_H * 0.65 - buildingH;
 
-    // Soft radial glow
-    const starGlow = cc.createRadialGradient(s.x, s.y, 0, s.x, s.y, sz * 2.5);
-    starGlow.addColorStop(0, `rgba(240,240,220,${alpha * 0.4})`);
-    starGlow.addColorStop(1, 'rgba(240,240,220,0)');
-    cc.fillStyle = starGlow;
-    cc.beginPath(); cc.arc(s.x, s.y, sz * 2.5, 0, 6.28); cc.fill();
+    cc.fillStyle = `rgba(15,20,35,0.8)`;
+    cc.fillRect(buildingX, buildingY, buildingW, buildingH);
 
-    cc.fillStyle = `rgba(255,255,240,${alpha})`;
-    cc.beginPath(); cc.arc(s.x, s.y, sz, 0, 6.28); cc.fill();
+    // Draw lit windows (small yellow/white rectangles)
+    const windowSize = 4;
+    const windowGap = 8;
+    for (let wx = buildingX + 6; wx < buildingX + buildingW - 4; wx += windowGap) {
+      for (let wy = buildingY + 8; wy < buildingY + buildingH - 4; wy += windowGap) {
+        // Randomly lit windows
+        if (Math.random() > 0.3) {
+          const windowGlow = cc.createRadialGradient(wx + 2, wy + 2, 0, wx + 2, wy + 2, 5);
+          windowGlow.addColorStop(0, `rgba(255,240,150,0.6)`);
+          windowGlow.addColorStop(1, `rgba(255,220,100,0.1)`);
+          cc.fillStyle = windowGlow;
+          cc.beginPath(); cc.arc(wx + 2, wy + 2, 5, 0, 6.28); cc.fill();
+
+          cc.fillStyle = `rgba(255,245,180,0.8)`;
+          cc.fillRect(wx, wy, windowSize, windowSize);
+        }
+      }
+    }
   });
 
   // === TITLE with painterly styling ===
@@ -6422,7 +6464,7 @@ function charSelectLoop(now) {
   // === CHARACTER CARDS (painterly style) ===
   const cards = getCharCardRects();
   cards.forEach((card, i) => {
-    const fam = FAMILY[i];
+    const fam = OFFICE[i];
     const isSelected = i === csSelectedIdx;
     const isHover = i === csHoverIdx;
 
